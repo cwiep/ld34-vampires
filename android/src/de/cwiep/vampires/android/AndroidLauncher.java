@@ -4,13 +4,14 @@ import android.os.Bundle;
 
 import com.badlogic.gdx.backends.android.AndroidApplication;
 import com.badlogic.gdx.backends.android.AndroidApplicationConfiguration;
-import de.cwiep.vampires.VampiresMain;
+
+import de.cwiep.vampires.GameController;
 
 public class AndroidLauncher extends AndroidApplication {
 	@Override
 	protected void onCreate (Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		AndroidApplicationConfiguration config = new AndroidApplicationConfiguration();
-		initialize(new VampiresMain(), config);
+		initialize(new GameController(), config);
 	}
 }
