@@ -52,7 +52,7 @@ public class Human extends Sprite {
             moveDirection.set(MathUtils.random(-20, 20), MathUtils.random(-20, 20));
         }
         this.translate(moveDirection.x * dt, moveDirection.y * dt);
-        if(getX() <= 0 || getX() >= GameController.V_WIDTH - getWidth()) {
+        if(getX() <= 90 || getX() >= GameController.V_WIDTH - getWidth() - 90) {
             moveDirection.x *= -1;
         }
         if(getY() <= 0 || getY() >= GameController.V_HEIGHT / 2 - getHeight()) {

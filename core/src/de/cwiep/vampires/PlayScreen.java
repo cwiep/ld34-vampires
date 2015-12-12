@@ -7,6 +7,7 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
+import com.badlogic.gdx.math.Circle;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
@@ -65,13 +66,13 @@ public class PlayScreen implements Screen {
         mGameOver = false;
         humansList = new ArrayList<Human>();
         for (int i = 0; i < NUM_HUMANS; ++i) {
-            int randx = MathUtils.random(10, GameController.V_WIDTH - 50);
+            int randx = MathUtils.random(90, GameController.V_WIDTH - 50 - 90);
             int randy = MathUtils.random(10, GameController.V_HEIGHT / 2);
 
             humansList.add(new Human(randx, randy, Human.HumanType.HUMAN));
         }
         for (int i = 0; i < NUM_HUNTERS; ++i) {
-            int randx = MathUtils.random(10, GameController.V_WIDTH - 50);
+            int randx = MathUtils.random(90, GameController.V_WIDTH - 50 - 90);
             int randy = MathUtils.random(10, GameController.V_HEIGHT / 2);
 
             humansList.add(new Human(randx, randy, Human.HumanType.HUNTER));
@@ -142,17 +143,16 @@ public class PlayScreen implements Screen {
         renderer.rect(GameController.V_WIDTH - 20, 0, 20, 20);
         renderer.end();*/
 
+        // draw android controller
+        renderer.begin(ShapeRenderer.ShapeType.Filled);
+        renderer.setColor(new Color(0xaaaaaa99));
+        renderer.circle(GameController.V_WIDTH - 45, 45, 40);
+        renderer.circle(45, 45, 40);
+        renderer.end();
+
         mGame.batch.setProjectionMatrix(mHud.mStage.getCamera().combined);
         mHud.mStage.draw();
 
-        if (mGameOver) {
-            mGame.setScreen(new GameOverScreen(mGame));
-            dispose();
-        }
-        /*if (player.getHasFinishedLevel()) {
-            mGame.setScreen(new WinScreen(mGame));
-            dispose();
-        }*/
     }
 
     private void sortHumansByYCoordinate() {
@@ -210,7 +210,8 @@ public class PlayScreen implements Screen {
         }
 
         if (energy <= 0) {
-            mGameOver = true;
+            mGame.setScreen(new GameOverScreen(mGame));
+            dispose();
         }
     }
 
@@ -221,17 +222,34 @@ public class PlayScreen implements Screen {
         if (Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE)) {
             Gdx.app.exit();
         }
+
         if (Gdx.input.isKeyJustPressed(Input.Keys.Q)) {
-            vampireVision = !vampireVision;
+            toggleVision();
         }
         if (Gdx.input.isKeyJustPressed(Input.Keys.W) && selectedHuman != null) {
             startAttack();
         }
         if (Gdx.input.justTouched()) {
-            handleHumanSelection(Gdx.input.getX(), Gdx.input.getY());
+            int touchX = Gdx.input.getX();
+            int touchY = Gdx.input.getY();
+            Vector3 touchPoint = new Vector3(touchX, touchY, 0);
+            mViewport.unproject(touchPoint);
+            boolean androidTouchVision = new Circle(45, 45, 40).contains(touchPoint.x, touchPoint.y);
+            boolean androidTouchAttack = new Circle(GameController.V_WIDTH - 45, 45, 40).contains(touchPoint.x, touchPoint.y);
+            if(androidTouchVision) {
+                toggleVision();
+            } else if(androidTouchAttack && selectedHuman != null){
+                startAttack();
+            } else {
+                handleHumanSelection(touchPoint);
+            }
         }
 
         // player.handleInput(mController, dt, getNextInteractionObject());
+    }
+
+    private void toggleVision() {
+        vampireVision = !vampireVision;
     }
 
     private void startAttack() {
@@ -264,10 +282,7 @@ public class PlayScreen implements Screen {
         drainEnergyCounter = ENERGY_CHANGE_DURATION;
     }
 
-    private void handleHumanSelection(int touchx, int touchy) {
-        Vector3 touchPoint = new Vector3(touchx, touchy, 0);
-        mViewport.unproject(touchPoint);
-
+    private void handleHumanSelection(Vector3 touchPoint) {
         // at this point humansList is sorted by y decreasing.
         // we want the "topmost" human at touchpoint x,y, meaning the one with smallest y
         selectedHuman = null;

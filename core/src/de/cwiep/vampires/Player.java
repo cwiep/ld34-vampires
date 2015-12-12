@@ -9,7 +9,7 @@ public class Player extends Sprite {
     private ShapeRenderer renderer;
     public Player() {
         renderer = new ShapeRenderer();
-        setBounds(100, 0, 32, 64);
+        setBounds(GameController.V_WIDTH / 2 - 32, GameController.V_HEIGHT / 2 - 64, 32, 64);
     }
 
     public void draw(SpriteBatch batch, boolean vampireVision) {
