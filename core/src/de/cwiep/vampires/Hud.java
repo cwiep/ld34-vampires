@@ -13,14 +13,12 @@ import com.badlogic.gdx.utils.viewport.Viewport;
 
 public class Hud implements Disposable {
     public Stage mStage;
-    private Viewport mViewPort;
 
     private Label mLabel;
     private float mEnergy;
 
-    public Hud(SpriteBatch spriteBatch) {
-        mViewPort = new FitViewport(GameController.V_WIDTH, GameController.V_HEIGHT, new OrthographicCamera());
-        mStage = new Stage(mViewPort, spriteBatch);
+    public Hud(SpriteBatch spriteBatch, Viewport viewport) {
+        mStage = new Stage(viewport, spriteBatch);
 
         Table table = new Table();
         table.top();

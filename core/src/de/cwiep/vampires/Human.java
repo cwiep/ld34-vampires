@@ -27,17 +27,23 @@ public class Human extends Sprite {
         renderer.begin(ShapeRenderer.ShapeType.Filled);
         renderer.setColor(vampireVision ? Color.CYAN : Color.YELLOW);
         renderer.rect(getX(), getY(), getWidth(), getHeight());
+        renderer.setColor(Color.RED);
+        renderer.rect(getX()+5, getY()+5, getWidth()-10, getHeight()-10);
         renderer.end();
     }
 
     public void update(float dt) {
         moveTimer -= dt;
         if (moveTimer <= 0.0f) {
-            moveTimer = MathUtils.random(0.5f, 5.0f);
-            moveDirection.set(MathUtils.random(-1, 1), MathUtils.random(-1, 1));
+            moveTimer = MathUtils.random(0.5f, 2.0f);
+            moveDirection.set(MathUtils.random(-20, 20), MathUtils.random(-20, 20));
         }
-        this.translate(moveDirection.x, moveDirection.y);
-        setX(MathUtils.clamp(getX(), 0, GameController.V_WIDTH - getWidth()));
-        setY(MathUtils.clamp(getY(), 0, GameController.V_HEIGHT / 2));
+        this.translate(moveDirection.x * dt, moveDirection.y * dt);
+        if(getX() <= 0 || getX() >= GameController.V_WIDTH - getWidth()) {
+            moveDirection.x *= -1;
+        }
+        if(getY() <= 0 || getY() >= GameController.V_HEIGHT / 2 - getHeight()) {
+            moveDirection.y *= -1;
+        }
     }
 }
