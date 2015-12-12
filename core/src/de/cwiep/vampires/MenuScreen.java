@@ -30,7 +30,7 @@ public class MenuScreen implements Screen {
         table.center();
         table.setFillParent(true);
 
-        Label gameOverLabel = new Label("The Stealth Game", font);
+        Label gameOverLabel = new Label("LD34 - Vampires", font);
         Label playAgainLabel = new Label("Press any key to start", font);
         table.add(gameOverLabel).expandX();
         table.row();

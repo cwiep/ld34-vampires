@@ -30,7 +30,7 @@ public class GameOverScreen implements Screen {
         table.center();
         table.setFillParent(true);
 
-        Label gameOverLabel = new Label("Mission Failed!", font);
+        Label gameOverLabel = new Label("You failed!", font);
         Label playAgainLabel = new Label("Press any key to restart", font);
         table.add(gameOverLabel).expandX();
         table.row();

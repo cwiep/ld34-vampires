@@ -203,14 +203,14 @@ public class PlayScreen implements Screen {
                 }
             }
 
-            if (energy <= 0) {
-                mGameOver = true;
-            }
-
             if(numHumans == 0) {
                 mGame.setScreen(new WinScreen(mGame));
                 dispose();
             }
+        }
+
+        if (energy <= 0) {
+            mGameOver = true;
         }
     }
 

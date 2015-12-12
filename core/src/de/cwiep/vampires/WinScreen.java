@@ -30,8 +30,8 @@ public class WinScreen implements Screen {
         table.center();
         table.setFillParent(true);
 
-        Label gameOverLabel = new Label("Mission completed!", font);
-        Label playAgainLabel = new Label("Press any key to start next level", font);
+        Label gameOverLabel = new Label("Congratulations! Everyone is a vampire", font);
+        Label playAgainLabel = new Label("Press any key to play again", font);
         table.add(gameOverLabel).expandX();
         table.row();
         table.add(playAgainLabel).expandX().padTop(10);

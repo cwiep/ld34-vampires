@@ -1,6 +1,7 @@
 package de.cwiep.vampires;
 
 import com.badlogic.gdx.Game;
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 
@@ -14,6 +15,7 @@ public class GameController extends Game {
     @Override
     public void create() {
         batch = new SpriteBatch();
+        Gdx.graphics.setTitle("LD34 - Vampires");
         //mAssetManager = new AssetManager();
         //mAssetManager.load("loop.ogg", Music.class);
 
