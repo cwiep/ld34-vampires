@@ -10,7 +10,6 @@ import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Circle;
 import com.badlogic.gdx.math.MathUtils;
-import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
@@ -22,15 +21,13 @@ import java.util.List;
 
 public class PlayScreen implements Screen {
 
-    private static final float ENERGY_CHANGE_DURATION = 1.0f;
-    private static final float MOVE_TO_ENEMY_DURATION = 1.0f;
     private static final float BLOOD_BAR_PIXEL_WIDTH = 200;
-    private static final int FULL_BLOOD_BAR_AMOUNT = 50;
+    public static final int FULL_BLOOD_BAR_AMOUNT = 50;
 
-    private static final float HUNTER_ENERGY_DRAIN = 30;
-    private static final float VAMPIRE_ENERGY_DRAIN = 10;
-    private static final float HUMAN_ENERGY_GAIN = 5;
-    private static final float VISION_ENERGY_DRAIN = 25;
+    public static final float HUNTER_ENERGY_DRAIN = 30;
+    public static final float VAMPIRE_ENERGY_DRAIN = 10;
+    public static final float HUMAN_ENERGY_GAIN = 5;
+    public static final float VISION_ENERGY_DRAIN = 25;
 
     public static int NUM_HUMANS = 10;
     public static int NUM_HUNTERS = 3;
@@ -41,22 +38,7 @@ public class PlayScreen implements Screen {
     private Hud mHud;
     private Player mPlayer;
 
-    private boolean mGameOver;
-    private boolean vampireVision;
-    private boolean isAttacking;
-    private float energy;
-
-    private float drainEnergyCounter;
-    private float targetEnergyLevel;
-    private float energyChange;
-
-    private float moveToEnemyCounter;
-    private float moveToEnemyDistance;
-    private Vector2 moveToEnemyTarget;
-    private boolean moveToEnemyFinished;
-
     private List<Human> humansList;
-    private Human selectedHuman;
     private ShapeRenderer renderer;
 
     public PlayScreen(GameController game) {
@@ -65,7 +47,11 @@ public class PlayScreen implements Screen {
         mViewport = new FitViewport(GameController.V_WIDTH, GameController.V_HEIGHT, mGameCam);
         mHud = new Hud(mGame.batch, mViewport);
         mPlayer = new Player();
-        mGameOver = false;
+        renderer = new ShapeRenderer();
+        initHumansAndHunters();
+    }
+
+    private void initHumansAndHunters() {
         humansList = new ArrayList<Human>();
         for (int i = 0; i < NUM_HUMANS; ++i) {
             int randx = MathUtils.random(90, GameController.V_WIDTH - 50 - 90);
@@ -79,12 +65,6 @@ public class PlayScreen implements Screen {
 
             humansList.add(new Human(randx, randy, Human.HumanType.HUNTER));
         }
-        vampireVision = false;
-        isAttacking = false;
-        energy = FULL_BLOOD_BAR_AMOUNT;
-        renderer = new ShapeRenderer();
-        drainEnergyCounter = 0.0f;
-        targetEnergyLevel = 0;
     }
 
     @Override
@@ -97,44 +77,25 @@ public class PlayScreen implements Screen {
         sortHumansByYCoordinate();
         update(delta);
 
-        int clearColor = vampireVision ? 1 : 0;
+        // TODO: remove when actual background
+        int clearColor = mPlayer.getVampireVisionActive() ? 1 : 0;
         Gdx.gl.glClearColor(clearColor, clearColor, clearColor, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
-        mPlayer.draw(mGame.batch, vampireVision);
+        mPlayer.draw(mGame.batch, mPlayer.getVampireVisionActive());
 
-        if (isAttacking) {
-            selectedHuman.draw(mGame.batch, vampireVision);
+        if (mPlayer.isAttacking()) {
+            mPlayer.getSelectedHuman().draw(mGame.batch, mPlayer.getVampireVisionActive());
         } else {
             for (Human h : humansList) {
-                h.draw(mGame.batch, vampireVision);
+                h.draw(mGame.batch, mPlayer.getVampireVisionActive());
             }
         }
 
         renderer.setProjectionMatrix(mGame.batch.getProjectionMatrix());
-        if (selectedHuman != null) {
-            renderer.begin(ShapeRenderer.ShapeType.Filled);
-            renderer.setColor(Color.RED);
-            renderer.triangle(selectedHuman.getX(), selectedHuman.getY() + selectedHuman.getHeight() + 20,
-                    selectedHuman.getX() + selectedHuman.getWidth(), selectedHuman.getY() + selectedHuman.getHeight() + 20,
-                    selectedHuman.getX() + selectedHuman.getWidth() / 2, selectedHuman.getY() + selectedHuman.getHeight() + 5);
-            renderer.end();
-        }
 
-        renderer.begin(ShapeRenderer.ShapeType.Filled);
-        float rectx = GameController.V_WIDTH / 2 - BLOOD_BAR_PIXEL_WIDTH / 2;
-        float recty = GameController.V_HEIGHT - 40;
-        float rectw = BLOOD_BAR_PIXEL_WIDTH * energy / FULL_BLOOD_BAR_AMOUNT;
-
-        //background
-        renderer.setColor(Color.DARK_GRAY);
-        renderer.rect(rectx, recty, BLOOD_BAR_PIXEL_WIDTH, 20);
-
-        //bloodmeter
-        renderer.setColor(Color.RED);
-        renderer.rect(rectx, recty, rectw, 20);
-
-        renderer.end();
+        drawSelectionIndicator();
+        drawBloodMeter();
 
         /* test window aspect because of libgdx fucking viewport mess...
         renderer.begin(ShapeRenderer.ShapeType.Filled);
@@ -145,18 +106,77 @@ public class PlayScreen implements Screen {
         renderer.rect(GameController.V_WIDTH - 20, 0, 20, 20);
         renderer.end();*/
 
-        // draw android controller
-        if(Gdx.app.getType() == Application.ApplicationType.Android) {
-            renderer.begin(ShapeRenderer.ShapeType.Filled);
-            renderer.setColor(new Color(0xaaaaaa99));
-            renderer.circle(GameController.V_WIDTH - 45, 45, 40);
-            renderer.circle(45, 45, 40);
-            renderer.end();
+        if (Gdx.app.getType() == Application.ApplicationType.Android) {
+            drawAndroidController();
         }
 
         mGame.batch.setProjectionMatrix(mHud.mStage.getCamera().combined);
         mHud.mStage.draw();
 
+        checkWinCondition(delta);
+        checkGameOverCondition();
+    }
+
+    private void drawSelectionIndicator() {
+        Human selectedHuman = mPlayer.getSelectedHuman();
+        if (selectedHuman != null) {
+            renderer.begin(ShapeRenderer.ShapeType.Filled);
+            renderer.setColor(Color.RED);
+            renderer.triangle(selectedHuman.getX(), selectedHuman.getY() + selectedHuman.getHeight() + 20,
+                    selectedHuman.getX() + selectedHuman.getWidth(), selectedHuman.getY() + selectedHuman.getHeight() + 20,
+                    selectedHuman.getX() + selectedHuman.getWidth() / 2, selectedHuman.getY() + selectedHuman.getHeight() + 5);
+            renderer.end();
+        }
+    }
+
+    private void drawBloodMeter() {
+        renderer.begin(ShapeRenderer.ShapeType.Filled);
+        float rectx = GameController.V_WIDTH / 2 - BLOOD_BAR_PIXEL_WIDTH / 2;
+        float recty = GameController.V_HEIGHT - 40;
+        float rectw = BLOOD_BAR_PIXEL_WIDTH * mPlayer.getEnergy() / FULL_BLOOD_BAR_AMOUNT;
+
+        //background
+        renderer.setColor(Color.DARK_GRAY);
+        renderer.rect(rectx, recty, BLOOD_BAR_PIXEL_WIDTH, 20);
+
+        //bloodmeter
+        renderer.setColor(Color.RED);
+        renderer.rect(rectx, recty, rectw, 20);
+
+        renderer.end();
+    }
+
+    private void drawAndroidController() {
+        renderer.begin(ShapeRenderer.ShapeType.Filled);
+        renderer.setColor(new Color(0xaaaaaa99));
+        renderer.circle(GameController.V_WIDTH - 45, 45, 40);
+        renderer.circle(45, 45, 40);
+        renderer.end();
+    }
+
+    private void checkWinCondition(float delta) {
+        // count remaining humans for win condition
+        if (!mPlayer.getVampireVisionActive() && !mPlayer.isAttacking()) {
+            int numHumans = 0;
+            for (Human h : humansList) {
+                h.update(delta);
+                if (h.humanType == Human.HumanType.HUMAN) {
+                    ++numHumans;
+                }
+            }
+
+            if (numHumans == 0) {
+                mGame.setScreen(new WinScreen(mGame));
+                dispose();
+            }
+        }
+    }
+
+    private void checkGameOverCondition() {
+        if (mPlayer.getEnergy() <= 0) {
+            mGame.setScreen(new GameOverScreen(mGame));
+            dispose();
+        }
     }
 
     private void sortHumansByYCoordinate() {
@@ -172,55 +192,11 @@ public class PlayScreen implements Screen {
     public void update(float dt) {
         handleInput(dt);
         mGameCam.update();
-
-        if (isAttacking) {
-            if(!moveToEnemyFinished) {
-                moveToEnemyCounter -= dt;
-                mPlayer.translate(moveToEnemyTarget.x * dt / MOVE_TO_ENEMY_DURATION, moveToEnemyTarget.y * dt / MOVE_TO_ENEMY_DURATION);
-                if(moveToEnemyCounter <= 0) {
-                    moveToEnemyFinished = true;
-                    startDraining();
-                }
-            } else {
-                drainEnergyCounter -= dt;
-                energy = MathUtils.clamp(energy + energyChange * dt / ENERGY_CHANGE_DURATION, 0, FULL_BLOOD_BAR_AMOUNT);
-                if (drainEnergyCounter <= 0) {
-                    energy = targetEnergyLevel;
-                    isAttacking = false;
-                    selectedHuman = null;
-                }
-            }
-        }
-
-        if (vampireVision) {
-            energy -= VISION_ENERGY_DRAIN * dt;
-        }
-        mHud.setEnergyLevel(energy);
-
-        // count remaining humans for win condition
-        if (!vampireVision && !isAttacking) {
-            int numHumans = 0;
-            for (Human h : humansList) {
-                h.update(dt);
-                if(h.humanType == Human.HumanType.HUMAN) {
-                    ++numHumans;
-                }
-            }
-
-            if(numHumans == 0) {
-                mGame.setScreen(new WinScreen(mGame));
-                dispose();
-            }
-        }
-
-        if (energy <= 0) {
-            mGame.setScreen(new GameOverScreen(mGame));
-            dispose();
-        }
+        mPlayer.update(dt);
     }
 
     private void handleInput(float dt) {
-        if (isAttacking) {
+        if (mPlayer.isAttacking()) {
             return;
         }
         if (Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE)) {
@@ -228,10 +204,10 @@ public class PlayScreen implements Screen {
         }
 
         if (Gdx.input.isKeyJustPressed(Input.Keys.Q)) {
-            toggleVision();
+            mPlayer.toggleVision();
         }
-        if (Gdx.input.isKeyJustPressed(Input.Keys.W) && selectedHuman != null) {
-            startAttack();
+        if (Gdx.input.isKeyJustPressed(Input.Keys.W) && mPlayer.getSelectedHuman() != null) {
+            mPlayer.startAttack();
         }
         if (Gdx.input.justTouched()) {
             int touchX = Gdx.input.getX();
@@ -241,10 +217,10 @@ public class PlayScreen implements Screen {
             boolean onAndroid = Gdx.app.getType() == Application.ApplicationType.Android;
             boolean androidTouchVision = new Circle(45, 45, 40).contains(touchPoint.x, touchPoint.y);
             boolean androidTouchAttack = new Circle(GameController.V_WIDTH - 45, 45, 40).contains(touchPoint.x, touchPoint.y);
-            if(androidTouchVision && onAndroid) {
-                toggleVision();
-            } else if(androidTouchAttack && selectedHuman != null && onAndroid){
-                startAttack();
+            if (androidTouchVision && onAndroid) {
+                mPlayer.toggleVision();
+            } else if (androidTouchAttack && mPlayer.getSelectedHuman() != null && onAndroid) {
+                mPlayer.startAttack();
             } else {
                 handleHumanSelection(touchPoint);
             }
@@ -253,47 +229,13 @@ public class PlayScreen implements Screen {
         // player.handleInput(mController, dt, getNextInteractionObject());
     }
 
-    private void toggleVision() {
-        vampireVision = !vampireVision;
-    }
-
-    private void startAttack() {
-        isAttacking = true;
-        moveToEnemyCounter = MOVE_TO_ENEMY_DURATION;
-
-        // attack will happen from left or right depending on where the human is on screen
-        boolean humanLeftOfCenter = selectedHuman.getX() + selectedHuman.getWidth() / 2 <= GameController.V_WIDTH / 2;
-        float targetX = humanLeftOfCenter ? selectedHuman.getX() + selectedHuman.getWidth() + 5 : selectedHuman.getX() - 5 - mPlayer.getWidth();
-        float targetY = selectedHuman.getY();
-        moveToEnemyTarget = new Vector2(targetX, targetY).sub(mPlayer.getX(), mPlayer.getY());
-        moveToEnemyDistance = Vector2.dst(mPlayer.getX(), mPlayer.getY(), moveToEnemyTarget.x, moveToEnemyTarget.y);
-        moveToEnemyFinished = false;
-    }
-
-    private void startDraining() {
-        if (selectedHuman.humanType == Human.HumanType.HUNTER) {
-            targetEnergyLevel = energy - HUNTER_ENERGY_DRAIN;
-            energyChange = -HUNTER_ENERGY_DRAIN;
-        } else if (selectedHuman.humanType == Human.HumanType.VAMPIRE) {
-            // he already is a vampire and hurts you
-            targetEnergyLevel = energy - VAMPIRE_ENERGY_DRAIN;
-            energyChange = -VAMPIRE_ENERGY_DRAIN;
-        } else {
-            // make vampire and gain a little energy
-            selectedHuman.humanType = Human.HumanType.VAMPIRE;
-            targetEnergyLevel = MathUtils.clamp(energy + HUMAN_ENERGY_GAIN, 0, FULL_BLOOD_BAR_AMOUNT);
-            energyChange = HUMAN_ENERGY_GAIN;
-        }
-        drainEnergyCounter = ENERGY_CHANGE_DURATION;
-    }
-
     private void handleHumanSelection(Vector3 touchPoint) {
         // at this point humansList is sorted by y decreasing.
         // we want the "topmost" human at touchpoint x,y, meaning the one with smallest y
-        selectedHuman = null;
+        mPlayer.selectHuman(null);
         for (int i = 0; i < humansList.size(); ++i) {
             if (humansList.get(i).getBoundingRectangle().contains(touchPoint.x, touchPoint.y)) {
-                selectedHuman = humansList.get(i);
+                mPlayer.selectHuman(humansList.get(i));
             }
         }
     }
@@ -322,5 +264,6 @@ public class PlayScreen implements Screen {
     @Override
     public void dispose() {
         mHud.dispose();
+        renderer.dispose();
     }
 }
