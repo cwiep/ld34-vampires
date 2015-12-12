@@ -24,6 +24,11 @@ public class PlayScreen implements Screen {
     private static final float BLOOD_BAR_PIXEL_WIDTH = 200;
     private static final int FULL_BLOOD_BAR_AMOUNT = 50;
 
+    private static final float HUNTER_ENERGY_DRAIN = 30;
+    private static final float VAMPIRE_ENERGY_DRAIN = 10;
+    private static final float HUMAN_ENERGY_GAIN = 5;
+    private static final float VISION_ENERGY_DRAIN = 25;
+
     public static int NUM_HUMANS = 10;
     public static int NUM_HUNTERS = 3;
 
@@ -184,7 +189,7 @@ public class PlayScreen implements Screen {
         }
 
         if (vampireVision) {
-            energy -= 20 * dt;
+            energy -= VISION_ENERGY_DRAIN * dt;
         }
         mHud.setEnergyLevel(energy);
 
@@ -244,17 +249,17 @@ public class PlayScreen implements Screen {
 
     private void startDraining() {
         if (selectedHuman.humanType == Human.HumanType.HUNTER) {
-            targetEnergyLevel = energy - 30;
-            energyChange = -30;
+            targetEnergyLevel = energy - HUNTER_ENERGY_DRAIN;
+            energyChange = -HUNTER_ENERGY_DRAIN;
         } else if (selectedHuman.humanType == Human.HumanType.VAMPIRE) {
             // he already is a vampire and hurts you
-            targetEnergyLevel = energy - 10;
-            energyChange = -10;
+            targetEnergyLevel = energy - VAMPIRE_ENERGY_DRAIN;
+            energyChange = -VAMPIRE_ENERGY_DRAIN;
         } else {
             // make vampire and gain a little energy
             selectedHuman.humanType = Human.HumanType.VAMPIRE;
-            targetEnergyLevel = MathUtils.clamp(energy + 10, 0, FULL_BLOOD_BAR_AMOUNT);
-            energyChange = 10;
+            targetEnergyLevel = MathUtils.clamp(energy + HUMAN_ENERGY_GAIN, 0, FULL_BLOOD_BAR_AMOUNT);
+            energyChange = HUMAN_ENERGY_GAIN;
         }
         drainEnergyCounter = ENERGY_CHANGE_DURATION;
     }
