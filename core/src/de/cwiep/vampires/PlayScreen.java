@@ -8,6 +8,7 @@ import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.MathUtils;
+import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
@@ -38,6 +39,11 @@ public class PlayScreen implements Screen {
     private float drainEnergyCounter;
     private float targetEnergyLevel;
     private float energyChange;
+
+    private float moveToEnemyCounter;
+    private float moveToEnemyDistance;
+    private Vector2 moveToEnemyTarget;
+    private boolean moveToEnemyFinished;
 
     private List<Human> humansList;
     private Human selectedHuman;
@@ -133,12 +139,21 @@ public class PlayScreen implements Screen {
         mGameCam.update();
 
         if (isAttacking) {
-            drainEnergyCounter -= dt;
-            energy = MathUtils.clamp(energy + energyChange * dt / ENERGY_CHANGE_DURATION, 0, 100);
-            if (drainEnergyCounter <= 0) {
-                energy = targetEnergyLevel;
-                isAttacking = false;
-                selectedHuman = null;
+            if(!moveToEnemyFinished) {
+                moveToEnemyCounter -= dt;
+                mPlayer.translate(moveToEnemyTarget.x * dt / 1.0f, moveToEnemyTarget.y * dt / 1.0f);
+                if(moveToEnemyCounter <= 0) {
+                    moveToEnemyFinished = true;
+                    startDraining();
+                }
+            } else {
+                drainEnergyCounter -= dt;
+                energy = MathUtils.clamp(energy + energyChange * dt / ENERGY_CHANGE_DURATION, 0, 100);
+                if (drainEnergyCounter <= 0) {
+                    energy = targetEnergyLevel;
+                    isAttacking = false;
+                    selectedHuman = null;
+                }
             }
         }
 
@@ -190,11 +205,18 @@ public class PlayScreen implements Screen {
 
     private void startAttack() {
         isAttacking = true;
+        moveToEnemyCounter = 1.0f;
+
         // attack will happen from left or right depending on where the human is on screen
         boolean humanLeftOfCenter = selectedHuman.getX() + selectedHuman.getWidth() / 2 <= GameController.V_WIDTH / 2;
-        // TODO: move player to human
-        mPlayer.setPosition(humanLeftOfCenter ? selectedHuman.getX() + selectedHuman.getWidth() + 5 : selectedHuman.getX() - 5 - mPlayer.getWidth(), selectedHuman.getY());
+        float targetX = humanLeftOfCenter ? selectedHuman.getX() + selectedHuman.getWidth() + 5 : selectedHuman.getX() - 5 - mPlayer.getWidth();
+        float targetY = selectedHuman.getY();
+        moveToEnemyTarget = new Vector2(targetX, targetY).sub(mPlayer.getX(), mPlayer.getY());
+        moveToEnemyDistance = Vector2.dst(mPlayer.getX(), mPlayer.getY(), moveToEnemyTarget.x, moveToEnemyTarget.y);
+        moveToEnemyFinished = false;
+    }
 
+    private void startDraining() {
         if (selectedHuman.humanType == Human.HumanType.HUNTER) {
             targetEnergyLevel = energy - 30;
             energyChange = -30;
