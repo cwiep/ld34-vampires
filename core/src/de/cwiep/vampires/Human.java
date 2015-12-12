@@ -8,27 +8,36 @@ import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 
 public class Human extends Sprite {
+    public enum HumanType {
+        HUMAN, VAMPIRE, HUNTER
+    };
     private ShapeRenderer renderer;
     private boolean isMoving;
     private float moveTimer;
     private Vector2 moveDirection;
+    public HumanType humanType;
 
-    public Human(int x, int y) {
+    public Human(int x, int y, HumanType type) {
         renderer = new ShapeRenderer();
         setBounds(x, y, 32, 64);
         isMoving = false;
         moveTimer = 0;
         moveDirection = new Vector2(0, 0);
+        humanType = type;
     }
 
     public void draw(SpriteBatch batch, boolean vampireVision) {
         // drawing white rectangle as dummy
         renderer.setProjectionMatrix(batch.getProjectionMatrix());
         renderer.begin(ShapeRenderer.ShapeType.Filled);
-        renderer.setColor(vampireVision ? Color.CYAN : Color.YELLOW);
+        if(humanType == HumanType.HUNTER) {
+            renderer.setColor(Color.RED);
+        } else if(humanType == HumanType.VAMPIRE) {
+            renderer.setColor(Color.CYAN);
+        } else {
+            renderer.setColor(Color.YELLOW);
+        }
         renderer.rect(getX(), getY(), getWidth(), getHeight());
-        renderer.setColor(Color.RED);
-        renderer.rect(getX()+5, getY()+5, getWidth()-10, getHeight()-10);
         renderer.end();
     }
 
