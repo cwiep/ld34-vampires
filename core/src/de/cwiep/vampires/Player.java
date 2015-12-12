@@ -31,7 +31,7 @@ public class Player extends Sprite {
     public Player() {
         renderer = new ShapeRenderer();
         setBounds(GameController.V_WIDTH / 2 - 32, GameController.V_HEIGHT / 2 - 64, 32, 64);
-        energy = PlayScreen.FULL_BLOOD_BAR_AMOUNT;
+        energy = GameRulesConstants.FULL_BLOOD_BAR_AMOUNT;
         drainEnergyCounter = 0.0f;
         targetEnergyLevel = 0;
         vampireVision = false;
@@ -44,7 +44,7 @@ public class Player extends Sprite {
         }
 
         if (vampireVision) {
-            energy -= PlayScreen.VISION_ENERGY_DRAIN * dt;
+            energy -= GameRulesConstants.VISION_ENERGY_DRAIN * dt;
         }
     }
 
@@ -73,13 +73,13 @@ public class Player extends Sprite {
         if (!moveToEnemyFinished) {
             moveToEnemyCounter -= dt;
             translate(moveToEnemyTarget.x * dt / MOVE_TO_ENEMY_DURATION, moveToEnemyTarget.y * dt / MOVE_TO_ENEMY_DURATION);
-            if(moveToEnemyCounter <= 0) {
+            if (moveToEnemyCounter <= 0) {
                 moveToEnemyFinished = true;
                 startDraining();
             }
         } else {
             drainEnergyCounter -= dt;
-            energy = MathUtils.clamp(energy + energyChange * dt / ENERGY_CHANGE_DURATION, 0, PlayScreen.FULL_BLOOD_BAR_AMOUNT);
+            energy = MathUtils.clamp(energy + energyChange * dt / ENERGY_CHANGE_DURATION, 0, GameRulesConstants.FULL_BLOOD_BAR_AMOUNT);
             if (drainEnergyCounter <= 0) {
                 energy = targetEnergyLevel;
                 isAttacking = false;
@@ -90,17 +90,17 @@ public class Player extends Sprite {
 
     public void startDraining() {
         if (selectedHuman.humanType == Human.HumanType.HUNTER) {
-            targetEnergyLevel = energy - PlayScreen.HUNTER_ENERGY_DRAIN;
-            energyChange = -PlayScreen.HUNTER_ENERGY_DRAIN;
+            targetEnergyLevel = energy - GameRulesConstants.HUNTER_ENERGY_DRAIN;
+            energyChange = -GameRulesConstants.HUNTER_ENERGY_DRAIN;
         } else if (selectedHuman.humanType == Human.HumanType.VAMPIRE) {
             // he already is a vampire and hurts you
-            targetEnergyLevel = energy - PlayScreen.VAMPIRE_ENERGY_DRAIN;
-            energyChange = -PlayScreen.VAMPIRE_ENERGY_DRAIN;
+            targetEnergyLevel = energy - GameRulesConstants.VAMPIRE_ENERGY_DRAIN;
+            energyChange = -GameRulesConstants.VAMPIRE_ENERGY_DRAIN;
         } else {
             // make vampire and gain a little energy
             selectedHuman.humanType = Human.HumanType.VAMPIRE;
-            targetEnergyLevel = MathUtils.clamp(energy + PlayScreen.HUMAN_ENERGY_GAIN, 0, PlayScreen.FULL_BLOOD_BAR_AMOUNT);
-            energyChange = PlayScreen.HUMAN_ENERGY_GAIN;
+            targetEnergyLevel = MathUtils.clamp(energy + GameRulesConstants.HUMAN_ENERGY_GAIN, 0, GameRulesConstants.FULL_BLOOD_BAR_AMOUNT);
+            energyChange = GameRulesConstants.HUMAN_ENERGY_GAIN;
         }
         drainEnergyCounter = ENERGY_CHANGE_DURATION;
     }
@@ -127,5 +127,9 @@ public class Player extends Sprite {
 
     public void selectHuman(Human human) {
         selectedHuman = human;
+    }
+
+    public void dispose() {
+        renderer.dispose();
     }
 }

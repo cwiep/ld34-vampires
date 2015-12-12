@@ -22,20 +22,10 @@ import java.util.List;
 public class PlayScreen implements Screen {
 
     private static final float BLOOD_BAR_PIXEL_WIDTH = 200;
-    public static final int FULL_BLOOD_BAR_AMOUNT = 50;
-
-    public static final float HUNTER_ENERGY_DRAIN = 30;
-    public static final float VAMPIRE_ENERGY_DRAIN = 10;
-    public static final float HUMAN_ENERGY_GAIN = 5;
-    public static final float VISION_ENERGY_DRAIN = 25;
-
-    public static int NUM_HUMANS = 10;
-    public static int NUM_HUNTERS = 3;
 
     private GameController mGame;
     private OrthographicCamera mGameCam;
     private Viewport mViewport;
-    private Hud mHud;
     private Player mPlayer;
 
     private List<Human> humansList;
@@ -45,7 +35,7 @@ public class PlayScreen implements Screen {
         mGame = game;
         mGameCam = new OrthographicCamera();
         mViewport = new FitViewport(GameController.V_WIDTH, GameController.V_HEIGHT, mGameCam);
-        mHud = new Hud(mGame.batch, mViewport);
+        mGameCam.setToOrtho(false, mViewport.getWorldWidth(), mViewport.getWorldHeight());
         mPlayer = new Player();
         renderer = new ShapeRenderer();
         initHumansAndHunters();
@@ -53,13 +43,13 @@ public class PlayScreen implements Screen {
 
     private void initHumansAndHunters() {
         humansList = new ArrayList<Human>();
-        for (int i = 0; i < NUM_HUMANS; ++i) {
+        for (int i = 0; i < GameRulesConstants.NUM_HUMANS; ++i) {
             int randx = MathUtils.random(90, GameController.V_WIDTH - 50 - 90);
             int randy = MathUtils.random(10, GameController.V_HEIGHT / 2);
 
             humansList.add(new Human(randx, randy, Human.HumanType.HUMAN));
         }
-        for (int i = 0; i < NUM_HUNTERS; ++i) {
+        for (int i = 0; i < GameRulesConstants.NUM_HUNTERS; ++i) {
             int randx = MathUtils.random(90, GameController.V_WIDTH - 50 - 90);
             int randy = MathUtils.random(10, GameController.V_HEIGHT / 2);
 
@@ -97,24 +87,27 @@ public class PlayScreen implements Screen {
         drawSelectionIndicator();
         drawBloodMeter();
 
-        /* test window aspect because of libgdx fucking viewport mess...
-        renderer.begin(ShapeRenderer.ShapeType.Filled);
-        renderer.setColor(Color.BLUE);
-        renderer.rect(0, 0, 20, 20);
-        renderer.rect(0, GameController.V_HEIGHT-20, 20, 20);
-        renderer.rect(GameController.V_WIDTH - 20, GameController.V_HEIGHT - 20, 20, 20);
-        renderer.rect(GameController.V_WIDTH - 20, 0, 20, 20);
-        renderer.end();*/
+        //drawWindowCorners();
 
         if (Gdx.app.getType() == Application.ApplicationType.Android) {
             drawAndroidController();
         }
 
-        mGame.batch.setProjectionMatrix(mHud.mStage.getCamera().combined);
-        mHud.mStage.draw();
+        mGame.batch.setProjectionMatrix(mGameCam.combined);
 
         checkWinCondition(delta);
         checkGameOverCondition();
+    }
+
+    private void drawWindowCorners() {
+        // for debugging camera and viewport
+        renderer.begin(ShapeRenderer.ShapeType.Filled);
+        renderer.setColor(Color.BLUE);
+        renderer.rect(0, 0, 20, 20);
+        renderer.rect(0, GameController.V_HEIGHT - 20, 20, 20);
+        renderer.rect(GameController.V_WIDTH - 20, GameController.V_HEIGHT - 20, 20, 20);
+        renderer.rect(GameController.V_WIDTH - 20, 0, 20, 20);
+        renderer.end();
     }
 
     private void drawSelectionIndicator() {
@@ -133,7 +126,7 @@ public class PlayScreen implements Screen {
         renderer.begin(ShapeRenderer.ShapeType.Filled);
         float rectx = GameController.V_WIDTH / 2 - BLOOD_BAR_PIXEL_WIDTH / 2;
         float recty = GameController.V_HEIGHT - 40;
-        float rectw = BLOOD_BAR_PIXEL_WIDTH * mPlayer.getEnergy() / FULL_BLOOD_BAR_AMOUNT;
+        float rectw = BLOOD_BAR_PIXEL_WIDTH * mPlayer.getEnergy() / GameRulesConstants.FULL_BLOOD_BAR_AMOUNT;
 
         //background
         renderer.setColor(Color.DARK_GRAY);
@@ -242,7 +235,6 @@ public class PlayScreen implements Screen {
 
     @Override
     public void resize(int width, int height) {
-        mHud.mStage.getViewport().update(width, height);
         mViewport.update(width, height);
     }
 
@@ -263,7 +255,10 @@ public class PlayScreen implements Screen {
 
     @Override
     public void dispose() {
-        mHud.dispose();
+        for (Human h : humansList) {
+            h.dispose();
+        }
         renderer.dispose();
+        mPlayer.dispose();
     }
 }

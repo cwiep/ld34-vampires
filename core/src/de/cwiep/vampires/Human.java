@@ -10,9 +10,9 @@ import com.badlogic.gdx.math.Vector2;
 public class Human extends Sprite {
     public enum HumanType {
         HUMAN, VAMPIRE, HUNTER
-    };
+    }
+
     private ShapeRenderer renderer;
-    private boolean isMoving;
     private float moveTimer;
     private Vector2 moveDirection;
     public HumanType humanType;
@@ -20,7 +20,6 @@ public class Human extends Sprite {
     public Human(int x, int y, HumanType type) {
         renderer = new ShapeRenderer();
         setBounds(x, y, 32, 64);
-        isMoving = false;
         moveTimer = 0;
         moveDirection = new Vector2(0, 0);
         humanType = type;
@@ -30,7 +29,7 @@ public class Human extends Sprite {
         // drawing white rectangle as dummy
         renderer.setProjectionMatrix(batch.getProjectionMatrix());
         renderer.begin(ShapeRenderer.ShapeType.Filled);
-        if(vampireVision) {
+        if (vampireVision) {
             if (humanType == HumanType.HUNTER) {
                 renderer.setColor(Color.RED);
             } else if (humanType == HumanType.VAMPIRE) {
@@ -52,11 +51,15 @@ public class Human extends Sprite {
             moveDirection.set(MathUtils.random(-20, 20), MathUtils.random(-20, 20));
         }
         this.translate(moveDirection.x * dt, moveDirection.y * dt);
-        if(getX() <= 90 || getX() >= GameController.V_WIDTH - getWidth() - 90) {
+        if (getX() <= 90 || getX() >= GameController.V_WIDTH - getWidth() - 90) {
             moveDirection.x *= -1;
         }
-        if(getY() <= 0 || getY() >= GameController.V_HEIGHT / 2 - getHeight()) {
+        if (getY() <= 0 || getY() >= GameController.V_HEIGHT / 2 - getHeight()) {
             moveDirection.y *= -1;
         }
+    }
+
+    public void dispose() {
+        renderer.dispose();
     }
 }
