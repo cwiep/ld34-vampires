@@ -19,6 +19,8 @@ import java.util.List;
 
 public class PlayScreen implements Screen {
 
+    private static final float ENERGY_CHANGE_DURATION = 2.0f;
+
     public static int NUM_HUMANS = 10;
     public static int NUM_HUNTERS = 3;
 
@@ -132,17 +134,11 @@ public class PlayScreen implements Screen {
 
         if (isAttacking) {
             drainEnergyCounter -= dt;
-            energy = MathUtils.clamp(energy + energyChange * dt / 3.0f, 0, 100);
+            energy = MathUtils.clamp(energy + energyChange * dt / ENERGY_CHANGE_DURATION, 0, 100);
             if (drainEnergyCounter <= 0) {
                 energy = targetEnergyLevel;
                 isAttacking = false;
                 selectedHuman = null;
-            }
-        }
-
-        if (!vampireVision && !isAttacking) {
-            for (Human h : humansList) {
-                h.update(dt);
             }
         }
 
@@ -151,8 +147,24 @@ public class PlayScreen implements Screen {
         }
         mHud.setEnergyLevel(energy);
 
-        if (energy <= 0) {
-            mGameOver = true;
+        // count remaining humans for win condition
+        if (!vampireVision && !isAttacking) {
+            int numHumans = 0;
+            for (Human h : humansList) {
+                h.update(dt);
+                if(h.humanType == Human.HumanType.HUMAN) {
+                    ++numHumans;
+                }
+            }
+
+            if (energy <= 0) {
+                mGameOver = true;
+            }
+
+            if(numHumans == 0) {
+                mGame.setScreen(new WinScreen(mGame));
+                dispose();
+            }
         }
     }
 
@@ -196,7 +208,7 @@ public class PlayScreen implements Screen {
             targetEnergyLevel = MathUtils.clamp(energy + 10, 0, 100);
             energyChange = 10;
         }
-        drainEnergyCounter = 2.0f;
+        drainEnergyCounter = ENERGY_CHANGE_DURATION;
     }
 
     private void handleHumanSelection(int touchx, int touchy) {
