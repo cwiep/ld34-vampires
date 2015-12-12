@@ -1,5 +1,6 @@
 package de.cwiep.vampires;
 
+import com.badlogic.gdx.Application;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Screen;
@@ -21,7 +22,8 @@ import java.util.List;
 
 public class PlayScreen implements Screen {
 
-    private static final float ENERGY_CHANGE_DURATION = 2.0f;
+    private static final float ENERGY_CHANGE_DURATION = 1.0f;
+    private static final float MOVE_TO_ENEMY_DURATION = 1.0f;
     private static final float BLOOD_BAR_PIXEL_WIDTH = 200;
     private static final int FULL_BLOOD_BAR_AMOUNT = 50;
 
@@ -144,11 +146,13 @@ public class PlayScreen implements Screen {
         renderer.end();*/
 
         // draw android controller
-        renderer.begin(ShapeRenderer.ShapeType.Filled);
-        renderer.setColor(new Color(0xaaaaaa99));
-        renderer.circle(GameController.V_WIDTH - 45, 45, 40);
-        renderer.circle(45, 45, 40);
-        renderer.end();
+        if(Gdx.app.getType() == Application.ApplicationType.Android) {
+            renderer.begin(ShapeRenderer.ShapeType.Filled);
+            renderer.setColor(new Color(0xaaaaaa99));
+            renderer.circle(GameController.V_WIDTH - 45, 45, 40);
+            renderer.circle(45, 45, 40);
+            renderer.end();
+        }
 
         mGame.batch.setProjectionMatrix(mHud.mStage.getCamera().combined);
         mHud.mStage.draw();
@@ -172,7 +176,7 @@ public class PlayScreen implements Screen {
         if (isAttacking) {
             if(!moveToEnemyFinished) {
                 moveToEnemyCounter -= dt;
-                mPlayer.translate(moveToEnemyTarget.x * dt / 1.0f, moveToEnemyTarget.y * dt / 1.0f);
+                mPlayer.translate(moveToEnemyTarget.x * dt / MOVE_TO_ENEMY_DURATION, moveToEnemyTarget.y * dt / MOVE_TO_ENEMY_DURATION);
                 if(moveToEnemyCounter <= 0) {
                     moveToEnemyFinished = true;
                     startDraining();
@@ -234,11 +238,12 @@ public class PlayScreen implements Screen {
             int touchY = Gdx.input.getY();
             Vector3 touchPoint = new Vector3(touchX, touchY, 0);
             mViewport.unproject(touchPoint);
+            boolean onAndroid = Gdx.app.getType() == Application.ApplicationType.Android;
             boolean androidTouchVision = new Circle(45, 45, 40).contains(touchPoint.x, touchPoint.y);
             boolean androidTouchAttack = new Circle(GameController.V_WIDTH - 45, 45, 40).contains(touchPoint.x, touchPoint.y);
-            if(androidTouchVision) {
+            if(androidTouchVision && onAndroid) {
                 toggleVision();
-            } else if(androidTouchAttack && selectedHuman != null){
+            } else if(androidTouchAttack && selectedHuman != null && onAndroid){
                 startAttack();
             } else {
                 handleHumanSelection(touchPoint);
@@ -254,7 +259,7 @@ public class PlayScreen implements Screen {
 
     private void startAttack() {
         isAttacking = true;
-        moveToEnemyCounter = 1.0f;
+        moveToEnemyCounter = MOVE_TO_ENEMY_DURATION;
 
         // attack will happen from left or right depending on where the human is on screen
         boolean humanLeftOfCenter = selectedHuman.getX() + selectedHuman.getWidth() / 2 <= GameController.V_WIDTH / 2;
