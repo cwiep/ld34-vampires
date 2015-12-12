@@ -30,12 +30,16 @@ public class Human extends Sprite {
         // drawing white rectangle as dummy
         renderer.setProjectionMatrix(batch.getProjectionMatrix());
         renderer.begin(ShapeRenderer.ShapeType.Filled);
-        if(humanType == HumanType.HUNTER) {
-            renderer.setColor(Color.RED);
-        } else if(humanType == HumanType.VAMPIRE) {
-            renderer.setColor(Color.CYAN);
+        if(vampireVision) {
+            if (humanType == HumanType.HUNTER) {
+                renderer.setColor(Color.RED);
+            } else if (humanType == HumanType.VAMPIRE) {
+                renderer.setColor(Color.CYAN);
+            } else {
+                renderer.setColor(Color.YELLOW);
+            }
         } else {
-            renderer.setColor(Color.YELLOW);
+            renderer.setColor(Color.GOLD);
         }
         renderer.rect(getX(), getY(), getWidth(), getHeight());
         renderer.end();

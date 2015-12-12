@@ -4,6 +4,7 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
@@ -25,7 +26,7 @@ public class Hud implements Disposable {
         table.setFillParent(true);
 
         mEnergy = 100;
-        mLabel = new Label(String.format("Energy: %.2f", mEnergy), new Label.LabelStyle(new BitmapFont(), Color.RED));
+        mLabel = new Label(String.format("Energy: %d", (int)mEnergy), new Label.LabelStyle(new BitmapFont(), Color.RED));
         table.add(mLabel).padTop(10).padLeft(10);
         table.add().expandX();
 
@@ -39,7 +40,7 @@ public class Hud implements Disposable {
 
     public void setEnergyLevel(float energy) {
         mEnergy = energy;
-        mLabel.setText(String.format("Energy: %.2f", mEnergy));
+        mLabel.setText(String.format("Energy: %d", (int)mEnergy));
     }
 
 }

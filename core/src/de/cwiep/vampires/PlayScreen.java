@@ -21,6 +21,8 @@ import java.util.List;
 public class PlayScreen implements Screen {
 
     private static final float ENERGY_CHANGE_DURATION = 2.0f;
+    private static final float BLOOD_BAR_PIXEL_WIDTH = 200;
+    private static final int FULL_BLOOD_BAR_AMOUNT = 50;
 
     public static int NUM_HUMANS = 10;
     public static int NUM_HUNTERS = 3;
@@ -71,7 +73,7 @@ public class PlayScreen implements Screen {
         }
         vampireVision = false;
         isAttacking = false;
-        energy = 100;
+        energy = FULL_BLOOD_BAR_AMOUNT;
         renderer = new ShapeRenderer();
         drainEnergyCounter = 0.0f;
         targetEnergyLevel = 0;
@@ -101,8 +103,8 @@ public class PlayScreen implements Screen {
             }
         }
 
+        renderer.setProjectionMatrix(mGame.batch.getProjectionMatrix());
         if (selectedHuman != null) {
-            renderer.setProjectionMatrix(mGame.batch.getProjectionMatrix());
             renderer.begin(ShapeRenderer.ShapeType.Filled);
             renderer.setColor(Color.RED);
             renderer.triangle(selectedHuman.getX(), selectedHuman.getY() + selectedHuman.getHeight() + 20,
@@ -110,6 +112,30 @@ public class PlayScreen implements Screen {
                     selectedHuman.getX() + selectedHuman.getWidth() / 2, selectedHuman.getY() + selectedHuman.getHeight() + 5);
             renderer.end();
         }
+
+        renderer.begin(ShapeRenderer.ShapeType.Filled);
+        float rectx = GameController.V_WIDTH / 2 - BLOOD_BAR_PIXEL_WIDTH / 2;
+        float recty = GameController.V_HEIGHT - 40;
+        float rectw = BLOOD_BAR_PIXEL_WIDTH * energy / FULL_BLOOD_BAR_AMOUNT;
+
+        //background
+        renderer.setColor(Color.DARK_GRAY);
+        renderer.rect(rectx, recty, BLOOD_BAR_PIXEL_WIDTH, 20);
+
+        //bloodmeter
+        renderer.setColor(Color.RED);
+        renderer.rect(rectx, recty, rectw, 20);
+
+        renderer.end();
+
+        /* test window aspect because of libgdx fucking viewport mess...
+        renderer.begin(ShapeRenderer.ShapeType.Filled);
+        renderer.setColor(Color.BLUE);
+        renderer.rect(0, 0, 20, 20);
+        renderer.rect(0, GameController.V_HEIGHT-20, 20, 20);
+        renderer.rect(GameController.V_WIDTH - 20, GameController.V_HEIGHT - 20, 20, 20);
+        renderer.rect(GameController.V_WIDTH - 20, 0, 20, 20);
+        renderer.end();*/
 
         mGame.batch.setProjectionMatrix(mHud.mStage.getCamera().combined);
         mHud.mStage.draw();
@@ -148,7 +174,7 @@ public class PlayScreen implements Screen {
                 }
             } else {
                 drainEnergyCounter -= dt;
-                energy = MathUtils.clamp(energy + energyChange * dt / ENERGY_CHANGE_DURATION, 0, 100);
+                energy = MathUtils.clamp(energy + energyChange * dt / ENERGY_CHANGE_DURATION, 0, FULL_BLOOD_BAR_AMOUNT);
                 if (drainEnergyCounter <= 0) {
                     energy = targetEnergyLevel;
                     isAttacking = false;
@@ -158,7 +184,7 @@ public class PlayScreen implements Screen {
         }
 
         if (vampireVision) {
-            energy -= 10 * dt;
+            energy -= 20 * dt;
         }
         mHud.setEnergyLevel(energy);
 
@@ -227,7 +253,7 @@ public class PlayScreen implements Screen {
         } else {
             // make vampire and gain a little energy
             selectedHuman.humanType = Human.HumanType.VAMPIRE;
-            targetEnergyLevel = MathUtils.clamp(energy + 10, 0, 100);
+            targetEnergyLevel = MathUtils.clamp(energy + 10, 0, FULL_BLOOD_BAR_AMOUNT);
             energyChange = 10;
         }
         drainEnergyCounter = ENERGY_CHANGE_DURATION;
