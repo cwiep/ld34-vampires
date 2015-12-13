@@ -12,7 +12,7 @@ public class GameController extends Game {
     @Override
     public void create() {
         batch = new SpriteBatch();
-        Gdx.graphics.setTitle("LD34 - Vampires");
+        Gdx.graphics.setTitle("LD34 - Vampires suck!");
         //mAssetManager = new AssetManager();
         //mAssetManager.load("loop.ogg", Music.class);
 
