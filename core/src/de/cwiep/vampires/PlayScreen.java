@@ -7,6 +7,7 @@ import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
+import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Circle;
@@ -33,6 +34,7 @@ public class PlayScreen implements Screen {
     private ShapeRenderer renderer;
 
     private TextureAtlas mTextureAtlas;
+    private Texture mBackgroundImage;
 
     public PlayScreen(GameController game) {
         mGame = game;
@@ -44,19 +46,20 @@ public class PlayScreen implements Screen {
         mPlayer = new Player(mTextureAtlas);
 
         initHumansAndHunters();
+        mBackgroundImage = new Texture("background.png");
     }
 
     private void initHumansAndHunters() {
         humansList = new ArrayList<Human>();
         for (int i = 0; i < GameRulesConstants.NUM_HUMANS; ++i) {
-            int randx = MathUtils.random(90, GameRulesConstants.V_WIDTH - 50 - 90);
-            int randy = MathUtils.random(10, GameRulesConstants.V_HEIGHT / 2);
+            int randx = MathUtils.random(GameRulesConstants.PLAYFIELD_LEFT, GameRulesConstants.PLAYFIELD_RIGHT - 32);
+            int randy = MathUtils.random(GameRulesConstants.PLAYFIELD_BOTTOM, GameRulesConstants.PLAYFIELD_TOP);
 
             humansList.add(new Human(randx, randy, Human.HumanType.HUMAN, mTextureAtlas));
         }
         for (int i = 0; i < GameRulesConstants.NUM_HUNTERS; ++i) {
-            int randx = MathUtils.random(90, GameRulesConstants.V_WIDTH - 50 - 90);
-            int randy = MathUtils.random(10, GameRulesConstants.V_HEIGHT / 2);
+            int randx = MathUtils.random(GameRulesConstants.PLAYFIELD_LEFT, GameRulesConstants.PLAYFIELD_RIGHT - 32);
+            int randy = MathUtils.random(GameRulesConstants.PLAYFIELD_BOTTOM, GameRulesConstants.PLAYFIELD_TOP);
 
             humansList.add(new Human(randx, randy, Human.HumanType.HUNTER, mTextureAtlas));
         }
@@ -78,6 +81,7 @@ public class PlayScreen implements Screen {
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
         mGame.batch.begin();
+        mGame.batch.draw(mBackgroundImage, 0, 0, GameRulesConstants.V_WIDTH, GameRulesConstants.V_HEIGHT);
         mPlayer.draw(mGame.batch);
         if (mPlayer.isAttacking()) {
             mPlayer.getSelectedHuman().draw(mGame.batch);

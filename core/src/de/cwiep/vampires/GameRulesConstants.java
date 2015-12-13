@@ -4,6 +4,11 @@ public class GameRulesConstants {
     public static final int V_WIDTH = 640;
     public static final int V_HEIGHT = 480;
 
+    public static final int PLAYFIELD_LEFT = 90;
+    public static final int PLAYFIELD_RIGHT = V_WIDTH - 90;
+    public static final int PLAYFIELD_TOP = V_HEIGHT / 2 - 20;
+    public static final int PLAYFIELD_BOTTOM = 10;
+
     public static final int FULL_BLOOD_BAR_AMOUNT = 50;
 
     public static final float HUNTER_ENERGY_DRAIN = 30;

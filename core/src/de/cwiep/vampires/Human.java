@@ -69,10 +69,10 @@ public class Human extends Sprite {
                 moveDirection.set(MathUtils.random(-20, 20), MathUtils.random(-20, 20));
             }
             this.translate(moveDirection.x * dt, moveDirection.y * dt);
-            if (getX() <= 90 || getX() >= GameRulesConstants.V_WIDTH - getWidth() - 90) {
+            if (getX() <= GameRulesConstants.PLAYFIELD_LEFT || getX() >= GameRulesConstants.PLAYFIELD_RIGHT - getWidth()) {
                 moveDirection.x *= -1;
             }
-            if (getY() <= 0 || getY() >= GameRulesConstants.V_HEIGHT / 2 - getHeight()) {
+            if (getY() <= GameRulesConstants.PLAYFIELD_BOTTOM || getY() >= GameRulesConstants.PLAYFIELD_TOP - getHeight()) {
                 moveDirection.y *= -1;
             }
         } else if(attackHappening) {
