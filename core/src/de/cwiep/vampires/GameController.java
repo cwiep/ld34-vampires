@@ -16,8 +16,8 @@ public class GameController extends Game {
         //mAssetManager = new AssetManager();
         //mAssetManager.load("loop.ogg", Music.class);
 
-        setScreen(new PlayScreen(this));
-        //setScreen(new MenuScreen(this));
+        //setScreen(new PlayScreen(this));
+        setScreen(new MenuScreen(this));
     }
 
     @Override
