@@ -42,7 +42,7 @@ public class Player extends Sprite {
     public Player(TextureAtlas textureAtlas) {
         renderer = new ShapeRenderer();
         setBounds(GameRulesConstants.V_WIDTH / 2 - 32, GameRulesConstants.V_HEIGHT / 2 - 64, 32, 64);
-        energy = GameRulesConstants.FULL_BLOOD_BAR_AMOUNT;
+        energy = GameRulesConstants.STARTING_ENERGY;
         drainEnergyCounter = 0.0f;
         targetEnergyLevel = 0;
         vampireVision = false;
