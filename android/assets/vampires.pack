@@ -5,70 +5,91 @@ filter: Nearest,Nearest
 repeat: none
 player_attacking
   rotate: false
-  xy: 1, 133
+  xy: 1, 1
   size: 160, 64
   orig: 160, 64
   offset: 0, 0
   index: -1
 human_1_walk
   rotate: false
-  xy: 1, 67
+  xy: 163, 1
   size: 128, 64
   orig: 128, 64
   offset: 0, 0
   index: -1
+human_2_walk
+  rotate: false
+  xy: 293, 1
+  size: 128, 64
+  orig: 128, 64
+  offset: 0, 0
+  index: -1
+human_2_attacking
+  rotate: false
+  xy: 423, 1
+  size: 96, 64
+  orig: 96, 64
+  offset: 0, 0
+  index: -1
 human_1_attacking
   rotate: false
-  xy: 1, 1
+  xy: 521, 1
   size: 96, 64
   orig: 96, 64
   offset: 0, 0
   index: -1
 player_walk
   rotate: false
-  xy: 163, 133
+  xy: 619, 1
   size: 32, 64
   orig: 32, 64
   offset: 0, 0
   index: -1
 player_hit
   rotate: false
-  xy: 131, 67
+  xy: 653, 1
   size: 32, 64
   orig: 32, 64
   offset: 0, 0
   index: -1
 human_heat
   rotate: false
-  xy: 99, 1
+  xy: 687, 1
   size: 32, 64
   orig: 32, 64
   offset: 0, 0
   index: -1
 hunter_heat
   rotate: false
-  xy: 197, 133
+  xy: 721, 1
   size: 32, 64
   orig: 32, 64
   offset: 0, 0
   index: -1
 player_stand
   rotate: false
-  xy: 165, 67
+  xy: 755, 1
+  size: 32, 64
+  orig: 32, 64
+  offset: 0, 0
+  index: -1
+human_2_scared
+  rotate: false
+  xy: 789, 1
   size: 32, 64
   orig: 32, 64
   offset: 0, 0
   index: -1
 human_1_scared
   rotate: false
-  xy: 133, 1
+  xy: 823, 1
   size: 32, 64
   orig: 32, 64
   offset: 0, 0
   index: -1
 vampire_heat
   rotate: false
-  xy: 199, 67
+  xy: 857, 1
   size: 32, 64
   orig: 32, 64
   offset: 0, 0

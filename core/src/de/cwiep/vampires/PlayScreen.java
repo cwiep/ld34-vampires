@@ -55,13 +55,13 @@ public class PlayScreen implements Screen {
             int randx = MathUtils.random(GameRulesConstants.PLAYFIELD_LEFT, GameRulesConstants.PLAYFIELD_RIGHT - 32);
             int randy = MathUtils.random(GameRulesConstants.PLAYFIELD_BOTTOM, GameRulesConstants.PLAYFIELD_TOP);
 
-            humansList.add(new Human(randx, randy, Human.HumanType.HUMAN, mTextureAtlas));
+            humansList.add(new Human(randx, randy, Human.HumanType.HUMAN, mTextureAtlas, i < GameRulesConstants.NUM_HUMANS / 2));
         }
         for (int i = 0; i < GameRulesConstants.NUM_HUNTERS; ++i) {
             int randx = MathUtils.random(GameRulesConstants.PLAYFIELD_LEFT, GameRulesConstants.PLAYFIELD_RIGHT - 32);
             int randy = MathUtils.random(GameRulesConstants.PLAYFIELD_BOTTOM, GameRulesConstants.PLAYFIELD_TOP);
 
-            humansList.add(new Human(randx, randy, Human.HumanType.HUNTER, mTextureAtlas));
+            humansList.add(new Human(randx, randy, Human.HumanType.HUNTER, mTextureAtlas, i < GameRulesConstants.NUM_HUNTERS / 2));
         }
     }
 

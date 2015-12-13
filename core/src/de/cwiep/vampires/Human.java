@@ -30,8 +30,18 @@ public class Human extends Sprite {
 
     private float attackTimer;
 
-    public Human(int x, int y, HumanType type, TextureAtlas textureAtlas) {
+    public Human(int x, int y, HumanType type, TextureAtlas textureAtlas, boolean isMale) {
         super(textureAtlas.findRegion("human_1_walk"));
+        String walkfile, attackfile, scarefile;
+        if(isMale) {
+            walkfile = "human_1_walk";
+            attackfile = "human_1_attacking";
+            scarefile = "human_1_scared";
+        } else {
+            walkfile = "human_2_walk";
+            attackfile = "human_2_attacking";
+            scarefile = "human_2_scared";
+        }
         renderer = new ShapeRenderer();
         setBounds(x, y, 32, 64);
         moveTimer = 0;
@@ -40,17 +50,17 @@ public class Human extends Sprite {
 
         Array<TextureRegion> frames = new Array<TextureRegion>();
         for (int i = 1; i < 4; ++i) {
-            frames.add(new TextureRegion(textureAtlas.findRegion("human_1_walk"), i * 32, 0, 32, 64));
+            frames.add(new TextureRegion(textureAtlas.findRegion(walkfile), i * 32, 0, 32, 64));
         }
         mHumanWalk = new Animation(0.1f, frames);
         frames.clear();
         for (int i = 1; i < 3; ++i) {
-            frames.add(new TextureRegion(textureAtlas.findRegion("human_1_attacking"), i * 32, 0, 32, 64));
+            frames.add(new TextureRegion(textureAtlas.findRegion(attackfile), i * 32, 0, 32, 64));
         }
         mHumanAttack = new Animation(0.2f, frames);
         frames.clear();
-        mRegionStand = new TextureRegion(textureAtlas.findRegion("human_1_walk"), 0, 0, 32, 64);
-        mRegionScared = textureAtlas.findRegion("human_1_scared");
+        mRegionStand = new TextureRegion(textureAtlas.findRegion(walkfile), 0, 0, 32, 64);
+        mRegionScared = textureAtlas.findRegion(scarefile);
         mRegionHumanHeat = textureAtlas.findRegion("human_heat");
         mRegionHunterHeat = textureAtlas.findRegion("hunter_heat");
         mRegionVampireHeat = textureAtlas.findRegion("vampire_heat");
