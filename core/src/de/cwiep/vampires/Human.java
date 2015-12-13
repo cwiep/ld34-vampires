@@ -1,11 +1,15 @@
 package de.cwiep.vampires;
 
 import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.g2d.TextureAtlas;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.utils.Array;
 
 public class Human extends Sprite {
     public enum HumanType {
@@ -17,17 +21,33 @@ public class Human extends Sprite {
     private Vector2 moveDirection;
     public HumanType humanType;
 
-    public Human(int x, int y, HumanType type) {
+    private TextureRegion mRegionWalk;
+    private TextureRegion mRegionStand;
+    private TextureRegion mRegionScared;
+    private Animation mHumanWalk;
+
+    public Human(int x, int y, HumanType type, TextureAtlas textureAtlas) {
+        super(textureAtlas.findRegion("human_1_walk"));
         renderer = new ShapeRenderer();
         setBounds(x, y, 32, 64);
         moveTimer = 0;
         moveDirection = new Vector2(0, 0);
         humanType = type;
+
+        Array<TextureRegion> frames = new Array<TextureRegion>();
+        for (int i = 1; i < 4; ++i) {
+            frames.add(new TextureRegion(textureAtlas.findRegion("human_1_walk"), i * 32, 0, 32, 64));
+        }
+        mHumanWalk = new Animation(0.1f, frames);
+        frames.clear();
+        mRegionStand = new TextureRegion(textureAtlas.findRegion("human_1_walk"), 0, 0, 32, 64);
+        mRegionScared = textureAtlas.findRegion("human_1_scared");
     }
 
     public void draw(SpriteBatch batch, boolean vampireVision) {
+        super.draw(batch);
         // drawing white rectangle as dummy
-        renderer.setProjectionMatrix(batch.getProjectionMatrix());
+        /*renderer.setProjectionMatrix(batch.getProjectionMatrix());
         renderer.begin(ShapeRenderer.ShapeType.Filled);
         if (vampireVision) {
             if (humanType == HumanType.HUNTER) {
@@ -41,7 +61,7 @@ public class Human extends Sprite {
             renderer.setColor(Color.GOLD);
         }
         renderer.rect(getX(), getY(), getWidth(), getHeight());
-        renderer.end();
+        renderer.end();*/
     }
 
     public void update(float dt) {
@@ -57,6 +77,26 @@ public class Human extends Sprite {
         if (getY() <= 0 || getY() >= GameController.V_HEIGHT / 2 - getHeight()) {
             moveDirection.y *= -1;
         }
+
+        setRegion(getFrame(dt));
+    }
+
+    private TextureRegion getFrame(float dt) {
+        TextureRegion region;
+
+        if(moveTimer > 0) {
+            region = mHumanWalk.getKeyFrame(moveTimer, true);
+        } else {
+            region = mRegionStand;
+        }
+
+        if(moveDirection.x < 0 && !region.isFlipX()) {
+            region.flip(true, false);
+        } else if(moveDirection.x >= 0 && region.isFlipX()) {
+            region.flip(true, false);
+        }
+
+        return region;
     }
 
     public void dispose() {

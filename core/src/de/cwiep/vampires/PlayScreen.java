@@ -7,6 +7,7 @@ import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
+import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Circle;
 import com.badlogic.gdx.math.MathUtils;
@@ -31,6 +32,8 @@ public class PlayScreen implements Screen {
     private List<Human> humansList;
     private ShapeRenderer renderer;
 
+    private TextureAtlas mTextureAtlas;
+
     public PlayScreen(GameController game) {
         mGame = game;
         mGameCam = new OrthographicCamera();
@@ -38,6 +41,8 @@ public class PlayScreen implements Screen {
         mGameCam.setToOrtho(false, mViewport.getWorldWidth(), mViewport.getWorldHeight());
         mPlayer = new Player();
         renderer = new ShapeRenderer();
+        mTextureAtlas = new TextureAtlas("vampires.pack");
+
         initHumansAndHunters();
     }
 
@@ -47,13 +52,13 @@ public class PlayScreen implements Screen {
             int randx = MathUtils.random(90, GameController.V_WIDTH - 50 - 90);
             int randy = MathUtils.random(10, GameController.V_HEIGHT / 2);
 
-            humansList.add(new Human(randx, randy, Human.HumanType.HUMAN));
+            humansList.add(new Human(randx, randy, Human.HumanType.HUMAN, mTextureAtlas));
         }
         for (int i = 0; i < GameRulesConstants.NUM_HUNTERS; ++i) {
             int randx = MathUtils.random(90, GameController.V_WIDTH - 50 - 90);
             int randy = MathUtils.random(10, GameController.V_HEIGHT / 2);
 
-            humansList.add(new Human(randx, randy, Human.HumanType.HUNTER));
+            humansList.add(new Human(randx, randy, Human.HumanType.HUNTER, mTextureAtlas));
         }
     }
 
@@ -74,6 +79,7 @@ public class PlayScreen implements Screen {
 
         mPlayer.draw(mGame.batch, mPlayer.getVampireVisionActive());
 
+        mGame.batch.begin();
         if (mPlayer.isAttacking()) {
             mPlayer.getSelectedHuman().draw(mGame.batch, mPlayer.getVampireVisionActive());
         } else {
@@ -81,6 +87,7 @@ public class PlayScreen implements Screen {
                 h.draw(mGame.batch, mPlayer.getVampireVisionActive());
             }
         }
+        mGame.batch.end();
 
         renderer.setProjectionMatrix(mGame.batch.getProjectionMatrix());
 
