@@ -1,0 +1,19 @@
+
+vampires.png
+format: RGBA8888
+filter: Nearest,Nearest
+repeat: none
+human_1_walk
+  rotate: false
+  xy: 1, 1
+  size: 128, 64
+  orig: 128, 64
+  offset: 0, 0
+  index: -1
+human_1_scared
+  rotate: false
+  xy: 131, 1
+  size: 32, 64
+  orig: 32, 64
+  offset: 0, 0
+  index: -1
