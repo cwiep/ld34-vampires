@@ -24,14 +24,14 @@ public class WinScreen implements Screen {
         mViewport = new FitViewport(GameRulesConstants.V_WIDTH, GameRulesConstants.V_HEIGHT, new OrthographicCamera());
         mStage = new Stage(mViewport, (game.batch));
 
-        Label.LabelStyle font = new Label.LabelStyle(new BitmapFont(), Color.WHITE);
+        Label.LabelStyle font = new Label.LabelStyle(new BitmapFont(), Color.BLACK);
 
         Table table = new Table();
         table.center();
         table.setFillParent(true);
 
-        Label gameOverLabel = new Label("Congratulations! Everyone is a vampire", font);
-        Label playAgainLabel = new Label("Press any key to play again", font);
+        Label gameOverLabel = new Label("Congratulations! Everyone is a vampire.", font);
+        Label playAgainLabel = new Label("Press any key", font);
         table.add(gameOverLabel).expandX();
         table.row();
         table.add(playAgainLabel).expandX().padTop(10);
@@ -45,7 +45,7 @@ public class WinScreen implements Screen {
 
     @Override
     public void render(float delta) {
-        Gdx.gl.glClearColor(0, 0, 0, 1);
+        Gdx.gl.glClearColor(1, 1, 1, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
         mStage.draw();
 
@@ -54,7 +54,7 @@ public class WinScreen implements Screen {
         }
 
         if (Gdx.input.justTouched() || Gdx.input.isKeyJustPressed(Input.Keys.ANY_KEY)) {
-            mGame.setScreen((new PlayScreen(mGame)));
+            mGame.setScreen((new MenuScreen(mGame)));
             dispose();
         }
     }
