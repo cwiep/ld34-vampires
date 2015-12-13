@@ -76,7 +76,7 @@ public class Player extends Sprite {
         if (isAttacking) {
             if (moveToEnemyCounter > 0) {
                 region = mRegionWalk;
-            } else if(isGettingHit){
+            } else if (isGettingHit) {
                 region = mRegionHit;
             } else {
                 region = mAttackAnimation.getKeyFrame(drainEnergyCounter, true);
@@ -127,8 +127,11 @@ public class Player extends Sprite {
             if (drainEnergyCounter <= 0) {
                 energy = targetEnergyLevel;
                 isAttacking = false;
-                selectedHuman = null;
                 isGettingHit = false;
+                if(selectedHuman.humanType == Human.HumanType.HUMAN) {
+                    selectedHuman.humanType = Human.HumanType.VAMPIRE;
+                }
+                selectedHuman = null;
             }
         }
     }
@@ -146,7 +149,6 @@ public class Player extends Sprite {
             isGettingHit = true;
         } else {
             // make vampire and gain a little energy
-            selectedHuman.humanType = Human.HumanType.VAMPIRE;
             targetEnergyLevel = MathUtils.clamp(energy + GameRulesConstants.HUMAN_ENERGY_GAIN, 0, GameRulesConstants.FULL_BLOOD_BAR_AMOUNT);
             energyChange = GameRulesConstants.HUMAN_ENERGY_GAIN;
         }

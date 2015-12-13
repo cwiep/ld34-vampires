@@ -80,10 +80,10 @@ public class PlayScreen implements Screen {
         mGame.batch.begin();
         mPlayer.draw(mGame.batch);
         if (mPlayer.isAttacking()) {
-            mPlayer.getSelectedHuman().draw(mGame.batch, mPlayer.getVampireVisionActive());
+            mPlayer.getSelectedHuman().draw(mGame.batch);
         } else {
             for (Human h : humansList) {
-                h.draw(mGame.batch, mPlayer.getVampireVisionActive());
+                h.draw(mGame.batch);
             }
         }
         mGame.batch.end();
@@ -158,7 +158,7 @@ public class PlayScreen implements Screen {
         boolean humansShouldMove = !mPlayer.getVampireVisionActive() && !mPlayer.isAttacking();
         int numHumans = 0;
         for (Human h : humansList) {
-            h.update(delta, mPlayer.getVampireVisionActive(), mPlayer.isAttacking());
+            h.update(delta, mPlayer.getVampireVisionActive(), mPlayer.isAttacking(), (int)mPlayer.getX());
             if (h.humanType == Human.HumanType.HUMAN) {
                 ++numHumans;
             }
