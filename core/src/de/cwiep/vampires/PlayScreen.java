@@ -77,9 +77,8 @@ public class PlayScreen implements Screen {
         Gdx.gl.glClearColor(clearColor, clearColor, clearColor, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
-        mPlayer.draw(mGame.batch, mPlayer.getVampireVisionActive());
-
         mGame.batch.begin();
+        mPlayer.draw(mGame.batch);
         if (mPlayer.isAttacking()) {
             mPlayer.getSelectedHuman().draw(mGame.batch, mPlayer.getVampireVisionActive());
         } else {
@@ -159,7 +158,7 @@ public class PlayScreen implements Screen {
         boolean humansShouldMove = !mPlayer.getVampireVisionActive() && !mPlayer.isAttacking();
         int numHumans = 0;
         for (Human h : humansList) {
-            h.update(delta, mPlayer.getVampireVisionActive(), humansShouldMove);
+            h.update(delta, mPlayer.getVampireVisionActive(), mPlayer.isAttacking());
             if (h.humanType == Human.HumanType.HUMAN) {
                 ++numHumans;
             }

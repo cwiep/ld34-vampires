@@ -31,6 +31,8 @@ public class Player extends Sprite {
     Human selectedHuman;
 
     private TextureRegion mRegionHeat;
+    private TextureRegion mRegionStand;
+    private TextureRegion mRegionWalk;
 
     public Player(TextureAtlas textureAtlas) {
         renderer = new ShapeRenderer();
@@ -40,6 +42,8 @@ public class Player extends Sprite {
         targetEnergyLevel = 0;
         vampireVision = false;
         isAttacking = false;
+        mRegionStand = textureAtlas.findRegion("player_stand");
+        mRegionWalk = textureAtlas.findRegion("player_walk");
         mRegionHeat = textureAtlas.findRegion("vampire_heat");
     }
 
@@ -47,26 +51,34 @@ public class Player extends Sprite {
         if (isAttacking) {
             updateAttack(dt);
         }
-
         if (vampireVision) {
             energy -= GameRulesConstants.VISION_ENERGY_DRAIN * dt;
         }
+
+        setRegion(getFrame());
     }
 
-    public void draw(SpriteBatch batch, boolean vampireVision) {
-        if(vampireVision) {
-            setRegion(mRegionHeat);
-            batch.begin();
-            super.draw(batch);
-            batch.end();
+    private TextureRegion getFrame() {
+        TextureRegion region;
+
+        if(isAttacking) {
+            region = mRegionWalk;
+            if(moveToEnemyTarget.x < getX() && !region.isFlipX()) {
+                region.flip(true, false);
+            } else if(moveToEnemyTarget.x >= getX() && region.isFlipX()) {
+                region.flip(true, false);
+            }
+        } else if(vampireVision) {
+            region = mRegionHeat;
         } else {
-            // drawing white rectangle as dummy
-            renderer.setProjectionMatrix(batch.getProjectionMatrix());
-            renderer.begin(ShapeRenderer.ShapeType.Filled);
-            renderer.setColor(vampireVision ? Color.BLACK : Color.WHITE);
-            renderer.rect(getX(), getY(), getWidth(), getHeight());
-            renderer.end();
+            region = mRegionStand;
         }
+
+        return region;
+    }
+
+    public void draw(SpriteBatch batch) {
+        super.draw(batch);
     }
 
     public void startAttack() {

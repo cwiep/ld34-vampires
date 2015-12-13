@@ -69,8 +69,8 @@ public class Human extends Sprite {
         renderer.end();*/
     }
 
-    public void update(float dt, boolean vampireVision, boolean shouldMove) {
-        if(shouldMove) {
+    public void update(float dt, boolean vampireVision, boolean attackHappening) {
+        if(!vampireVision && !attackHappening) {
             moveTimer -= dt;
             if (moveTimer <= 0.0f) {
                 moveTimer = MathUtils.random(0.5f, 2.0f);
@@ -85,13 +85,15 @@ public class Human extends Sprite {
             }
         }
 
-        setRegion(getFrame(vampireVision));
+        setRegion(getFrame(vampireVision, attackHappening));
     }
 
-    private TextureRegion getFrame(boolean vampireVision) {
+    private TextureRegion getFrame(boolean vampireVision, boolean attackHappening) {
         TextureRegion region;
 
-        if(vampireVision) {
+        if(attackHappening) {
+            region = mRegionScared;
+        } else if(vampireVision) {
             if(humanType == HumanType.VAMPIRE) {
                 region = mRegionVampireHeat;
             } else if(humanType == HumanType.HUNTER) {

@@ -10,30 +10,44 @@ human_1_walk
   orig: 128, 64
   offset: 0, 0
   index: -1
-human_heat
+player_walk
   rotate: false
   xy: 131, 1
   size: 32, 64
   orig: 32, 64
   offset: 0, 0
   index: -1
-hunter_heat
+human_heat
   rotate: false
   xy: 165, 1
   size: 32, 64
   orig: 32, 64
   offset: 0, 0
   index: -1
-human_1_scared
+hunter_heat
   rotate: false
   xy: 199, 1
   size: 32, 64
   orig: 32, 64
   offset: 0, 0
   index: -1
-vampire_heat
+player_stand
   rotate: false
   xy: 233, 1
+  size: 32, 64
+  orig: 32, 64
+  offset: 0, 0
+  index: -1
+human_1_scared
+  rotate: false
+  xy: 267, 1
+  size: 32, 64
+  orig: 32, 64
+  offset: 0, 0
+  index: -1
+vampire_heat
+  rotate: false
+  xy: 301, 1
   size: 32, 64
   orig: 32, 64
   offset: 0, 0
