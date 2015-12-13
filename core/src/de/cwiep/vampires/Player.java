@@ -1,6 +1,7 @@
 package de.cwiep.vampires;
 
 import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
@@ -8,6 +9,7 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.utils.Array;
 
 public class Player extends Sprite {
 
@@ -24,6 +26,7 @@ public class Player extends Sprite {
     private float moveToEnemyCounter;
     private Vector2 moveToEnemyTarget;
     private boolean moveToEnemyFinished;
+    private boolean facingRight;
 
     private boolean vampireVision;
     private boolean isAttacking;
@@ -33,6 +36,8 @@ public class Player extends Sprite {
     private TextureRegion mRegionHeat;
     private TextureRegion mRegionStand;
     private TextureRegion mRegionWalk;
+    private TextureRegion mRegionHit;
+    private Animation mAttackAnimation;
 
     public Player(TextureAtlas textureAtlas) {
         renderer = new ShapeRenderer();
@@ -45,6 +50,13 @@ public class Player extends Sprite {
         mRegionStand = textureAtlas.findRegion("player_stand");
         mRegionWalk = textureAtlas.findRegion("player_walk");
         mRegionHeat = textureAtlas.findRegion("vampire_heat");
+        mRegionHit = textureAtlas.findRegion("player_hit");
+        Array<TextureRegion> frames = new Array<TextureRegion>();
+        for (int i = 1; i < 3; ++i) {
+            frames.add(new TextureRegion(textureAtlas.findRegion("player_attacking"), i * 32, 0, 32, 64));
+        }
+        mAttackAnimation = new Animation(0.1f, frames);
+        frames.clear();
     }
 
     public void update(float dt) {
@@ -62,16 +74,21 @@ public class Player extends Sprite {
         TextureRegion region;
 
         if(isAttacking) {
-            region = mRegionWalk;
-            if(moveToEnemyTarget.x < getX() && !region.isFlipX()) {
-                region.flip(true, false);
-            } else if(moveToEnemyTarget.x >= getX() && region.isFlipX()) {
+            if(moveToEnemyCounter > 0) {
+                region = mRegionWalk;
+            } else {
+                region = mAttackAnimation.getKeyFrame(drainEnergyCounter, true);
+            }
+            if(!facingRight && !region.isFlipX() || facingRight && region.isFlipX()) {
                 region.flip(true, false);
             }
         } else if(vampireVision) {
             region = mRegionHeat;
         } else {
             region = mRegionStand;
+            if(!facingRight && !region.isFlipX() || facingRight && region.isFlipX()) {
+                region.flip(true, false);
+            }
         }
 
         return region;
@@ -89,6 +106,7 @@ public class Player extends Sprite {
         boolean humanLeftOfCenter = selectedHuman.getX() + selectedHuman.getWidth() / 2 <= GameController.V_WIDTH / 2;
         float targetX = humanLeftOfCenter ? selectedHuman.getX() + selectedHuman.getWidth() + 5 : selectedHuman.getX() - 5 - getWidth();
         float targetY = selectedHuman.getY();
+        facingRight = targetX > getX();
         moveToEnemyTarget = new Vector2(targetX, targetY).sub(getX(), getY());
         moveToEnemyFinished = false;
     }
@@ -102,6 +120,7 @@ public class Player extends Sprite {
                 startDraining();
             }
         } else {
+            facingRight = moveToEnemyTarget.x > 0;
             drainEnergyCounter -= dt;
             energy = MathUtils.clamp(energy + energyChange * dt / ENERGY_CHANGE_DURATION, 0, GameRulesConstants.FULL_BLOOD_BAR_AMOUNT);
             if (drainEnergyCounter <= 0) {
