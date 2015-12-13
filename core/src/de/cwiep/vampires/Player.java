@@ -1,6 +1,5 @@
 package de.cwiep.vampires;
 
-import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
@@ -30,6 +29,7 @@ public class Player extends Sprite {
 
     private boolean vampireVision;
     private boolean isAttacking;
+    private boolean isGettingHit;
 
     Human selectedHuman;
 
@@ -41,7 +41,7 @@ public class Player extends Sprite {
 
     public Player(TextureAtlas textureAtlas) {
         renderer = new ShapeRenderer();
-        setBounds(GameController.V_WIDTH / 2 - 32, GameController.V_HEIGHT / 2 - 64, 32, 64);
+        setBounds(GameRulesConstants.V_WIDTH / 2 - 32, GameRulesConstants.V_HEIGHT / 2 - 64, 32, 64);
         energy = GameRulesConstants.FULL_BLOOD_BAR_AMOUNT;
         drainEnergyCounter = 0.0f;
         targetEnergyLevel = 0;
@@ -52,7 +52,7 @@ public class Player extends Sprite {
         mRegionHeat = textureAtlas.findRegion("vampire_heat");
         mRegionHit = textureAtlas.findRegion("player_hit");
         Array<TextureRegion> frames = new Array<TextureRegion>();
-        for (int i = 1; i < 3; ++i) {
+        for (int i = 1; i < 5; ++i) {
             frames.add(new TextureRegion(textureAtlas.findRegion("player_attacking"), i * 32, 0, 32, 64));
         }
         mAttackAnimation = new Animation(0.1f, frames);
@@ -73,20 +73,22 @@ public class Player extends Sprite {
     private TextureRegion getFrame() {
         TextureRegion region;
 
-        if(isAttacking) {
-            if(moveToEnemyCounter > 0) {
+        if (isAttacking) {
+            if (moveToEnemyCounter > 0) {
                 region = mRegionWalk;
+            } else if(isGettingHit){
+                region = mRegionHit;
             } else {
                 region = mAttackAnimation.getKeyFrame(drainEnergyCounter, true);
             }
-            if(!facingRight && !region.isFlipX() || facingRight && region.isFlipX()) {
+            if (!facingRight && !region.isFlipX() || facingRight && region.isFlipX()) {
                 region.flip(true, false);
             }
-        } else if(vampireVision) {
+        } else if (vampireVision) {
             region = mRegionHeat;
         } else {
             region = mRegionStand;
-            if(!facingRight && !region.isFlipX() || facingRight && region.isFlipX()) {
+            if (!facingRight && !region.isFlipX() || facingRight && region.isFlipX()) {
                 region.flip(true, false);
             }
         }
@@ -103,8 +105,8 @@ public class Player extends Sprite {
         moveToEnemyCounter = MOVE_TO_ENEMY_DURATION;
 
         // attack will happen from left or right depending on where the human is on screen
-        boolean humanLeftOfCenter = selectedHuman.getX() + selectedHuman.getWidth() / 2 <= GameController.V_WIDTH / 2;
-        float targetX = humanLeftOfCenter ? selectedHuman.getX() + selectedHuman.getWidth() + 5 : selectedHuman.getX() - 5 - getWidth();
+        boolean humanLeftOfCenter = selectedHuman.getX() + selectedHuman.getWidth() / 2 <= GameRulesConstants.V_WIDTH / 2;
+        float targetX = humanLeftOfCenter ? selectedHuman.getX() + selectedHuman.getWidth() - 10 : selectedHuman.getX() - getWidth() + 10;
         float targetY = selectedHuman.getY();
         facingRight = targetX > getX();
         moveToEnemyTarget = new Vector2(targetX, targetY).sub(getX(), getY());
@@ -120,25 +122,28 @@ public class Player extends Sprite {
                 startDraining();
             }
         } else {
-            facingRight = moveToEnemyTarget.x > 0;
             drainEnergyCounter -= dt;
             energy = MathUtils.clamp(energy + energyChange * dt / ENERGY_CHANGE_DURATION, 0, GameRulesConstants.FULL_BLOOD_BAR_AMOUNT);
             if (drainEnergyCounter <= 0) {
                 energy = targetEnergyLevel;
                 isAttacking = false;
                 selectedHuman = null;
+                isGettingHit = false;
             }
         }
     }
 
     public void startDraining() {
+        facingRight = selectedHuman.getX() > getX();
         if (selectedHuman.humanType == Human.HumanType.HUNTER) {
             targetEnergyLevel = energy - GameRulesConstants.HUNTER_ENERGY_DRAIN;
             energyChange = -GameRulesConstants.HUNTER_ENERGY_DRAIN;
+            isGettingHit = true;
         } else if (selectedHuman.humanType == Human.HumanType.VAMPIRE) {
             // he already is a vampire and hurts you
             targetEnergyLevel = energy - GameRulesConstants.VAMPIRE_ENERGY_DRAIN;
             energyChange = -GameRulesConstants.VAMPIRE_ENERGY_DRAIN;
+            isGettingHit = true;
         } else {
             // make vampire and gain a little energy
             selectedHuman.humanType = Human.HumanType.VAMPIRE;

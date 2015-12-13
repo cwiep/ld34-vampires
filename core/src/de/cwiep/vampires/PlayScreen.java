@@ -37,7 +37,7 @@ public class PlayScreen implements Screen {
     public PlayScreen(GameController game) {
         mGame = game;
         mGameCam = new OrthographicCamera();
-        mViewport = new FitViewport(GameController.V_WIDTH, GameController.V_HEIGHT, mGameCam);
+        mViewport = new FitViewport(GameRulesConstants.V_WIDTH, GameRulesConstants.V_HEIGHT, mGameCam);
         mGameCam.setToOrtho(false, mViewport.getWorldWidth(), mViewport.getWorldHeight());
         renderer = new ShapeRenderer();
         mTextureAtlas = new TextureAtlas("vampires.pack");
@@ -49,14 +49,14 @@ public class PlayScreen implements Screen {
     private void initHumansAndHunters() {
         humansList = new ArrayList<Human>();
         for (int i = 0; i < GameRulesConstants.NUM_HUMANS; ++i) {
-            int randx = MathUtils.random(90, GameController.V_WIDTH - 50 - 90);
-            int randy = MathUtils.random(10, GameController.V_HEIGHT / 2);
+            int randx = MathUtils.random(90, GameRulesConstants.V_WIDTH - 50 - 90);
+            int randy = MathUtils.random(10, GameRulesConstants.V_HEIGHT / 2);
 
             humansList.add(new Human(randx, randy, Human.HumanType.HUMAN, mTextureAtlas));
         }
         for (int i = 0; i < GameRulesConstants.NUM_HUNTERS; ++i) {
-            int randx = MathUtils.random(90, GameController.V_WIDTH - 50 - 90);
-            int randy = MathUtils.random(10, GameController.V_HEIGHT / 2);
+            int randx = MathUtils.random(90, GameRulesConstants.V_WIDTH - 50 - 90);
+            int randy = MathUtils.random(10, GameRulesConstants.V_HEIGHT / 2);
 
             humansList.add(new Human(randx, randy, Human.HumanType.HUNTER, mTextureAtlas));
         }
@@ -110,9 +110,9 @@ public class PlayScreen implements Screen {
         renderer.begin(ShapeRenderer.ShapeType.Filled);
         renderer.setColor(Color.BLUE);
         renderer.rect(0, 0, 20, 20);
-        renderer.rect(0, GameController.V_HEIGHT - 20, 20, 20);
-        renderer.rect(GameController.V_WIDTH - 20, GameController.V_HEIGHT - 20, 20, 20);
-        renderer.rect(GameController.V_WIDTH - 20, 0, 20, 20);
+        renderer.rect(0, GameRulesConstants.V_HEIGHT - 20, 20, 20);
+        renderer.rect(GameRulesConstants.V_WIDTH - 20, GameRulesConstants.V_HEIGHT - 20, 20, 20);
+        renderer.rect(GameRulesConstants.V_WIDTH - 20, 0, 20, 20);
         renderer.end();
     }
 
@@ -130,8 +130,8 @@ public class PlayScreen implements Screen {
 
     private void drawBloodMeter() {
         renderer.begin(ShapeRenderer.ShapeType.Filled);
-        float rectx = GameController.V_WIDTH / 2 - BLOOD_BAR_PIXEL_WIDTH / 2;
-        float recty = GameController.V_HEIGHT - 40;
+        float rectx = GameRulesConstants.V_WIDTH / 2 - BLOOD_BAR_PIXEL_WIDTH / 2;
+        float recty = GameRulesConstants.V_HEIGHT - 40;
         float rectw = BLOOD_BAR_PIXEL_WIDTH * mPlayer.getEnergy() / GameRulesConstants.FULL_BLOOD_BAR_AMOUNT;
 
         //background
@@ -148,7 +148,7 @@ public class PlayScreen implements Screen {
     private void drawAndroidController() {
         renderer.begin(ShapeRenderer.ShapeType.Filled);
         renderer.setColor(new Color(0xaaaaaa99));
-        renderer.circle(GameController.V_WIDTH - 45, 45, 40);
+        renderer.circle(GameRulesConstants.V_WIDTH - 45, 45, 40);
         renderer.circle(45, 45, 40);
         renderer.end();
     }
@@ -216,7 +216,7 @@ public class PlayScreen implements Screen {
             mViewport.unproject(touchPoint);
             boolean onAndroid = Gdx.app.getType() == Application.ApplicationType.Android;
             boolean androidTouchVision = new Circle(45, 45, 40).contains(touchPoint.x, touchPoint.y);
-            boolean androidTouchAttack = new Circle(GameController.V_WIDTH - 45, 45, 40).contains(touchPoint.x, touchPoint.y);
+            boolean androidTouchAttack = new Circle(GameRulesConstants.V_WIDTH - 45, 45, 40).contains(touchPoint.x, touchPoint.y);
             if (androidTouchVision && onAndroid) {
                 mPlayer.toggleVision();
             } else if (androidTouchAttack && mPlayer.getSelectedHuman() != null && onAndroid) {

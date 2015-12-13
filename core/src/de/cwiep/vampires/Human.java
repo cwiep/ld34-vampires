@@ -1,6 +1,5 @@
 package de.cwiep.vampires;
 
-import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
@@ -70,17 +69,17 @@ public class Human extends Sprite {
     }
 
     public void update(float dt, boolean vampireVision, boolean attackHappening) {
-        if(!vampireVision && !attackHappening) {
+        if (!vampireVision && !attackHappening) {
             moveTimer -= dt;
             if (moveTimer <= 0.0f) {
                 moveTimer = MathUtils.random(0.5f, 2.0f);
                 moveDirection.set(MathUtils.random(-20, 20), MathUtils.random(-20, 20));
             }
             this.translate(moveDirection.x * dt, moveDirection.y * dt);
-            if (getX() <= 90 || getX() >= GameController.V_WIDTH - getWidth() - 90) {
+            if (getX() <= 90 || getX() >= GameRulesConstants.V_WIDTH - getWidth() - 90) {
                 moveDirection.x *= -1;
             }
-            if (getY() <= 0 || getY() >= GameController.V_HEIGHT / 2 - getHeight()) {
+            if (getY() <= 0 || getY() >= GameRulesConstants.V_HEIGHT / 2 - getHeight()) {
                 moveDirection.y *= -1;
             }
         }
@@ -91,25 +90,25 @@ public class Human extends Sprite {
     private TextureRegion getFrame(boolean vampireVision, boolean attackHappening) {
         TextureRegion region;
 
-        if(attackHappening) {
+        if (attackHappening) {
             region = mRegionScared;
-        } else if(vampireVision) {
-            if(humanType == HumanType.VAMPIRE) {
+        } else if (vampireVision) {
+            if (humanType == HumanType.VAMPIRE) {
                 region = mRegionVampireHeat;
-            } else if(humanType == HumanType.HUNTER) {
+            } else if (humanType == HumanType.HUNTER) {
                 region = mRegionHunterHeat;
             } else {
                 region = mRegionHumanHeat;
             }
-        } else if(moveTimer > 0) {
+        } else if (moveTimer > 0) {
             region = mHumanWalk.getKeyFrame(moveTimer, true);
         } else {
             region = mRegionStand;
         }
 
-        if(moveDirection.x < 0 && !region.isFlipX()) {
+        if (moveDirection.x < 0 && !region.isFlipX()) {
             region.flip(true, false);
-        } else if(moveDirection.x >= 0 && region.isFlipX()) {
+        } else if (moveDirection.x >= 0 && region.isFlipX()) {
             region.flip(true, false);
         }
 

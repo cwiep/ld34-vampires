@@ -6,9 +6,6 @@ import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 
 public class GameController extends Game {
-    public static final int V_WIDTH = 720;
-    public static final int V_HEIGHT = 480;
-
     public SpriteBatch batch;
     private AssetManager mAssetManager;
 

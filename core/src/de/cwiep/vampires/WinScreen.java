@@ -21,7 +21,7 @@ public class WinScreen implements Screen {
 
     public WinScreen(GameController game) {
         mGame = game;
-        mViewport = new FitViewport(GameController.V_WIDTH, GameController.V_HEIGHT, new OrthographicCamera());
+        mViewport = new FitViewport(GameRulesConstants.V_WIDTH, GameRulesConstants.V_HEIGHT, new OrthographicCamera());
         mStage = new Stage(mViewport, (game.batch));
 
         Label.LabelStyle font = new Label.LabelStyle(new BitmapFont(), Color.WHITE);

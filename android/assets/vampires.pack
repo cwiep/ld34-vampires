@@ -3,65 +3,72 @@ vampires.png
 format: RGBA8888
 filter: Nearest,Nearest
 repeat: none
+player_attacking
+  rotate: false
+  xy: 1, 133
+  size: 160, 64
+  orig: 160, 64
+  offset: 0, 0
+  index: -1
 human_1_walk
   rotate: false
-  xy: 1, 1
+  xy: 1, 67
   size: 128, 64
   orig: 128, 64
   offset: 0, 0
   index: -1
-player_attacking
+human_1_attacking
   rotate: false
-  xy: 131, 1
+  xy: 1, 1
   size: 96, 64
   orig: 96, 64
   offset: 0, 0
   index: -1
 player_walk
   rotate: false
-  xy: 229, 1
+  xy: 163, 133
   size: 32, 64
   orig: 32, 64
   offset: 0, 0
   index: -1
 player_hit
   rotate: false
-  xy: 263, 1
+  xy: 131, 67
   size: 32, 64
   orig: 32, 64
   offset: 0, 0
   index: -1
 human_heat
   rotate: false
-  xy: 297, 1
+  xy: 99, 1
   size: 32, 64
   orig: 32, 64
   offset: 0, 0
   index: -1
 hunter_heat
   rotate: false
-  xy: 331, 1
+  xy: 197, 133
   size: 32, 64
   orig: 32, 64
   offset: 0, 0
   index: -1
 player_stand
   rotate: false
-  xy: 365, 1
+  xy: 165, 67
   size: 32, 64
   orig: 32, 64
   offset: 0, 0
   index: -1
 human_1_scared
   rotate: false
-  xy: 399, 1
+  xy: 133, 1
   size: 32, 64
   orig: 32, 64
   offset: 0, 0
   index: -1
 vampire_heat
   rotate: false
-  xy: 433, 1
+  xy: 199, 67
   size: 32, 64
   orig: 32, 64
   offset: 0, 0

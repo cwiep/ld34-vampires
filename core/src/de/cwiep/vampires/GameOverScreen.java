@@ -21,8 +21,8 @@ public class GameOverScreen implements Screen {
 
     public GameOverScreen(Game game) {
         mGame = game;
-        mViewport = new FitViewport(GameController.V_WIDTH, GameController.V_HEIGHT, new OrthographicCamera());
-        mStage = new Stage(mViewport, ((GameController)game).batch);
+        mViewport = new FitViewport(GameRulesConstants.V_WIDTH, GameRulesConstants.V_HEIGHT, new OrthographicCamera());
+        mStage = new Stage(mViewport, ((GameController) game).batch);
 
         Label.LabelStyle font = new Label.LabelStyle(new BitmapFont(), Color.WHITE);
 
@@ -54,7 +54,7 @@ public class GameOverScreen implements Screen {
         }
 
         if (Gdx.input.justTouched() || Gdx.input.isKeyJustPressed(Input.Keys.ANY_KEY)) {
-            mGame.setScreen((new PlayScreen((GameController)mGame)));
+            mGame.setScreen((new PlayScreen((GameController) mGame)));
             dispose();
         }
     }
