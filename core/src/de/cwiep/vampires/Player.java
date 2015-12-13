@@ -3,6 +3,8 @@ package de.cwiep.vampires;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.g2d.TextureAtlas;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
@@ -28,7 +30,9 @@ public class Player extends Sprite {
 
     Human selectedHuman;
 
-    public Player() {
+    private TextureRegion mRegionHeat;
+
+    public Player(TextureAtlas textureAtlas) {
         renderer = new ShapeRenderer();
         setBounds(GameController.V_WIDTH / 2 - 32, GameController.V_HEIGHT / 2 - 64, 32, 64);
         energy = GameRulesConstants.FULL_BLOOD_BAR_AMOUNT;
@@ -36,6 +40,7 @@ public class Player extends Sprite {
         targetEnergyLevel = 0;
         vampireVision = false;
         isAttacking = false;
+        mRegionHeat = textureAtlas.findRegion("vampire_heat");
     }
 
     public void update(float dt) {
@@ -49,12 +54,19 @@ public class Player extends Sprite {
     }
 
     public void draw(SpriteBatch batch, boolean vampireVision) {
-        // drawing white rectangle as dummy
-        renderer.setProjectionMatrix(batch.getProjectionMatrix());
-        renderer.begin(ShapeRenderer.ShapeType.Filled);
-        renderer.setColor(vampireVision ? Color.BLACK : Color.WHITE);
-        renderer.rect(getX(), getY(), getWidth(), getHeight());
-        renderer.end();
+        if(vampireVision) {
+            setRegion(mRegionHeat);
+            batch.begin();
+            super.draw(batch);
+            batch.end();
+        } else {
+            // drawing white rectangle as dummy
+            renderer.setProjectionMatrix(batch.getProjectionMatrix());
+            renderer.begin(ShapeRenderer.ShapeType.Filled);
+            renderer.setColor(vampireVision ? Color.BLACK : Color.WHITE);
+            renderer.rect(getX(), getY(), getWidth(), getHeight());
+            renderer.end();
+        }
     }
 
     public void startAttack() {

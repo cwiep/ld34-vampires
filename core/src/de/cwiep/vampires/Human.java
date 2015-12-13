@@ -21,10 +21,12 @@ public class Human extends Sprite {
     private Vector2 moveDirection;
     public HumanType humanType;
 
-    private TextureRegion mRegionWalk;
     private TextureRegion mRegionStand;
     private TextureRegion mRegionScared;
     private Animation mHumanWalk;
+    private TextureRegion mRegionHumanHeat;
+    private TextureRegion mRegionVampireHeat;
+    private TextureRegion mRegionHunterHeat;
 
     public Human(int x, int y, HumanType type, TextureAtlas textureAtlas) {
         super(textureAtlas.findRegion("human_1_walk"));
@@ -42,6 +44,9 @@ public class Human extends Sprite {
         frames.clear();
         mRegionStand = new TextureRegion(textureAtlas.findRegion("human_1_walk"), 0, 0, 32, 64);
         mRegionScared = textureAtlas.findRegion("human_1_scared");
+        mRegionHumanHeat = textureAtlas.findRegion("human_heat");
+        mRegionHunterHeat = textureAtlas.findRegion("hunter_heat");
+        mRegionVampireHeat = textureAtlas.findRegion("vampire_heat");
     }
 
     public void draw(SpriteBatch batch, boolean vampireVision) {
@@ -64,27 +69,37 @@ public class Human extends Sprite {
         renderer.end();*/
     }
 
-    public void update(float dt) {
-        moveTimer -= dt;
-        if (moveTimer <= 0.0f) {
-            moveTimer = MathUtils.random(0.5f, 2.0f);
-            moveDirection.set(MathUtils.random(-20, 20), MathUtils.random(-20, 20));
-        }
-        this.translate(moveDirection.x * dt, moveDirection.y * dt);
-        if (getX() <= 90 || getX() >= GameController.V_WIDTH - getWidth() - 90) {
-            moveDirection.x *= -1;
-        }
-        if (getY() <= 0 || getY() >= GameController.V_HEIGHT / 2 - getHeight()) {
-            moveDirection.y *= -1;
+    public void update(float dt, boolean vampireVision, boolean shouldMove) {
+        if(shouldMove) {
+            moveTimer -= dt;
+            if (moveTimer <= 0.0f) {
+                moveTimer = MathUtils.random(0.5f, 2.0f);
+                moveDirection.set(MathUtils.random(-20, 20), MathUtils.random(-20, 20));
+            }
+            this.translate(moveDirection.x * dt, moveDirection.y * dt);
+            if (getX() <= 90 || getX() >= GameController.V_WIDTH - getWidth() - 90) {
+                moveDirection.x *= -1;
+            }
+            if (getY() <= 0 || getY() >= GameController.V_HEIGHT / 2 - getHeight()) {
+                moveDirection.y *= -1;
+            }
         }
 
-        setRegion(getFrame(dt));
+        setRegion(getFrame(vampireVision));
     }
 
-    private TextureRegion getFrame(float dt) {
+    private TextureRegion getFrame(boolean vampireVision) {
         TextureRegion region;
 
-        if(moveTimer > 0) {
+        if(vampireVision) {
+            if(humanType == HumanType.VAMPIRE) {
+                region = mRegionVampireHeat;
+            } else if(humanType == HumanType.HUNTER) {
+                region = mRegionHunterHeat;
+            } else {
+                region = mRegionHumanHeat;
+            }
+        } else if(moveTimer > 0) {
             region = mHumanWalk.getKeyFrame(moveTimer, true);
         } else {
             region = mRegionStand;

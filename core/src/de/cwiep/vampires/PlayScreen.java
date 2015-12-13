@@ -39,9 +39,9 @@ public class PlayScreen implements Screen {
         mGameCam = new OrthographicCamera();
         mViewport = new FitViewport(GameController.V_WIDTH, GameController.V_HEIGHT, mGameCam);
         mGameCam.setToOrtho(false, mViewport.getWorldWidth(), mViewport.getWorldHeight());
-        mPlayer = new Player();
         renderer = new ShapeRenderer();
         mTextureAtlas = new TextureAtlas("vampires.pack");
+        mPlayer = new Player(mTextureAtlas);
 
         initHumansAndHunters();
     }
@@ -156,15 +156,16 @@ public class PlayScreen implements Screen {
 
     private void checkWinCondition(float delta) {
         // count remaining humans for win condition
-        if (!mPlayer.getVampireVisionActive() && !mPlayer.isAttacking()) {
-            int numHumans = 0;
-            for (Human h : humansList) {
-                h.update(delta);
-                if (h.humanType == Human.HumanType.HUMAN) {
-                    ++numHumans;
-                }
+        boolean humansShouldMove = !mPlayer.getVampireVisionActive() && !mPlayer.isAttacking();
+        int numHumans = 0;
+        for (Human h : humansList) {
+            h.update(delta, mPlayer.getVampireVisionActive(), humansShouldMove);
+            if (h.humanType == Human.HumanType.HUMAN) {
+                ++numHumans;
             }
-
+        }
+        if (humansShouldMove) {
+            // only check win condition, if all animations have finished
             if (numHumans == 0) {
                 mGame.setScreen(new WinScreen(mGame));
                 dispose();
@@ -267,5 +268,6 @@ public class PlayScreen implements Screen {
         }
         renderer.dispose();
         mPlayer.dispose();
+        mTextureAtlas.dispose();
     }
 }
