@@ -81,10 +81,18 @@ public class PlayScreen implements Screen {
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
         mGame.batch.begin();
-        mGame.batch.draw(mBackgroundImage, 0, 0, GameRulesConstants.V_WIDTH, GameRulesConstants.V_HEIGHT);
+        if(!mPlayer.isAttacking()) {
+            mGame.batch.draw(mBackgroundImage, 0, 0, GameRulesConstants.V_WIDTH, GameRulesConstants.V_HEIGHT);
+        }
         mPlayer.draw(mGame.batch);
-        if (mPlayer.isAttacking()) {
-            mPlayer.getSelectedHuman().draw(mGame.batch);
+        mGame.batch.end();
+
+        if(!mPlayer.isAttacking()) {
+            drawSelectionIndicator();
+        }
+        mGame.batch.begin();
+        if(mPlayer.isAttacking()) {
+            mPlayer.selectedHuman.draw(mGame.batch);
         } else {
             for (Human h : humansList) {
                 h.draw(mGame.batch);
@@ -94,7 +102,6 @@ public class PlayScreen implements Screen {
 
         renderer.setProjectionMatrix(mGame.batch.getProjectionMatrix());
 
-        drawSelectionIndicator();
         drawBloodMeter();
 
         //drawWindowCorners();
@@ -123,18 +130,16 @@ public class PlayScreen implements Screen {
     private void drawSelectionIndicator() {
         Human selectedHuman = mPlayer.getSelectedHuman();
         if (selectedHuman != null) {
-            renderer.begin(ShapeRenderer.ShapeType.Filled);
+            renderer.begin(ShapeRenderer.ShapeType.Line);
             renderer.setColor(Color.RED);
-            renderer.triangle(selectedHuman.getX(), selectedHuman.getY() + selectedHuman.getHeight() + 20,
-                    selectedHuman.getX() + selectedHuman.getWidth(), selectedHuman.getY() + selectedHuman.getHeight() + 20,
-                    selectedHuman.getX() + selectedHuman.getWidth() / 2, selectedHuman.getY() + selectedHuman.getHeight() + 5);
+            renderer.ellipse(selectedHuman.getX() + selectedHuman.getWidth() / 2 - 15, selectedHuman.getY() + 8, 30, 10);
             renderer.end();
         }
     }
 
     private void drawBloodMeter() {
         renderer.begin(ShapeRenderer.ShapeType.Filled);
-        float rectx = GameRulesConstants.V_WIDTH / 2 - BLOOD_BAR_PIXEL_WIDTH / 2;
+        float rectx = GameRulesConstants.V_WIDTH - BLOOD_BAR_PIXEL_WIDTH - 20;
         float recty = GameRulesConstants.V_HEIGHT - 40;
         float rectw = BLOOD_BAR_PIXEL_WIDTH * mPlayer.getEnergy() / GameRulesConstants.FULL_BLOOD_BAR_AMOUNT;
 
@@ -162,7 +167,7 @@ public class PlayScreen implements Screen {
         boolean humansShouldMove = !mPlayer.getVampireVisionActive() && !mPlayer.isAttacking();
         int numHumans = 0;
         for (Human h : humansList) {
-            h.update(delta, mPlayer.getVampireVisionActive(), mPlayer.isAttacking(), (int)mPlayer.getX());
+            h.update(delta, mPlayer.getVampireVisionActive(), mPlayer.isAttacking(), (int) mPlayer.getX());
             if (h.humanType == Human.HumanType.HUMAN) {
                 ++numHumans;
             }
